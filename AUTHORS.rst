@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Eelco van Vliet <evlt@cbs.nl>
+* Eelco van Vliet <eelcovv@gmail.com>

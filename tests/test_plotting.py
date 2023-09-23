@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from numpy import (sin, pi, linspace)
 from numpy.testing import (assert_almost_equal)
-from hmc_utils.plotting import sub_plot_axis_to_2d
+from pymarine.utils.plotting import sub_plot_axis_to_2d
 
 
 def test_sub_plot_axis_to_2d():
