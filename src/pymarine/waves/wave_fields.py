@@ -642,7 +642,7 @@ class Wave2D(object):
 
         else:
             # for the FFT the number wave vectors should be equal to the number of x points
-            # for the DFT on the cartesian mesh we use the same mesh as the FFT so we can compare
+            # for the DFT on the cartesian mesh we use the same mesh as the FFT, so we can compare
             # the speed of the algorithms
             self.kx_nodes = 2 * np.pi * np.fft.fftfreq(self.nx_points, self.delta_x)
             self.ky_nodes = 2 * np.pi * np.fft.fftfreq(self.ny_points, self.delta_y)

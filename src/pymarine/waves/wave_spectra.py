@@ -1665,7 +1665,7 @@ def mask_out_of_range(kx, kmin, kmax):
 
     """
 
-    mask = np.full(kx.shape, True, dtype=np.bool)
+    mask = np.full(kx.shape, True, dtype=bool)
     mask[kx < kmin] = False
     mask[kx > kmax] = False
     if np.count_nonzero(mask) % 2 != 0:
@@ -1673,7 +1673,7 @@ def mask_out_of_range(kx, kmin, kmax):
         index = np.where(mask)  # a list with all the True values
         mask[
             index[0][-1] + 1
-        ] = True  # the the element after the last true index[-1] also to True
+        ] = True  # the element after the last true index[-1] also to True
 
     return mask
 
@@ -1849,7 +1849,7 @@ def thetaspreadspecs(theta, Dspread, areafraction=0.99):
 
     # create a mask which can later be used to extract the theta angles within the range
     # i_low, i_high
-    mask = np.full(theta.shape, True, dtype=np.bool)
+    mask = np.full(theta.shape, True, dtype=bool)
     mask[0 : i_low + 1] = False
     mask[i_high:] = False
 

@@ -3,8 +3,10 @@ Some functions to support with plotting in Python, mostly based on the *matplotl
 """
 import itertools
 import re
+import logging
 
-from hmc_utils.misc import get_logger
+_logger = logging.getLogger()
+
 
 # definition of hmc colors
 c_hmc = dict(
@@ -109,7 +111,6 @@ def analyse_annotations(annotation):
 
     This color value 'xkcd:red' is understood by all matplotlib routines
     """
-    log = get_logger(__name__)
     lx = 0.0
     ly = 0.0
     color = "black"
@@ -138,7 +139,7 @@ def analyse_annotations(annotation):
                 try:
                     axis = int(m.group(1))
                 except ValueError:
-                    log.warning("axis must by integers. Set zero")
+                    _logger.warning("axis must by integers. Set zero")
                 rest = re.sub(axis_pattern, "", rest)
             m = re.match(color_pattern, rest)
             if bool(m):
@@ -160,7 +161,7 @@ def analyse_annotations(annotation):
         try:
             color = c_hmc[hmc_color_name]
         except KeyError:
-            log.warning("color name not recognised: {}. Keeping black".format(color))
+            _logger.warning("color name not recognised: {}. Keeping black".format(color))
             color = "black"
 
     return text, lx, ly, color, size, axis
@@ -251,7 +252,6 @@ def clean_up_plot(artist_list):
 
     """
     n_cleaned = 0
-    log = get_logger(__name__)
     for ln in artist_list:
         n_cleaned += 1
         try:
@@ -263,7 +263,7 @@ def clean_up_plot(artist_list):
                 del ln
         else:
             n_cleaned -= 1
-            log.debug("All clean up failed. ")
+            _logger.debug("All clean up failed. ")
     artist_list = []
     return artist_list
 

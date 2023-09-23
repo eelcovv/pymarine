@@ -1,6 +1,11 @@
-python-dateutil
+python - dateutil
 numpy
 pandas
+pint
+pytest
+pytest-cov
+colorcet
+h5py
 scipy
 matplotlib
 seaborn
