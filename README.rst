@@ -31,20 +31,19 @@ pymarine
 ========
 
 
-    A collection of functions and classes applicate for marine sea state modelling
+    A collection of functions and classes for marine sea state modelling
 
+This packages supplies several wave field models which can be used for marine applications.
+
+
+===========
+Information
+===========
 
 This projects gives a collection of spectral functions. It comes with the following modules
 
 * wave_spectra : A set of functions to create wave spectra and distribution functions
 * wave_fields : Create and simulate 1D and 2D waves based on the *wave_spectra* module
-
-Examples
-========
-
-* Wave Spectra Functions : :download:`../examples/examples_wave_spectra.html`
-* Wave Field Modelling 1D : :download:`../examples/example_wave_field_modelling.html`
-* Wave Field Modelling 2D : :download:`../examples/example_wave_field_2D_modelling.html`
 
 .. _pyscaffold-notes:
 
