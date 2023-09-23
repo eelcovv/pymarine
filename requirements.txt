@@ -1,10 +1,12 @@
-python - dateutil
+python-dateutil
+fastkml
 numpy
 pandas
 pint
 pytest
 pytest-cov
 colorcet
+latloncalc
 h5py
 scipy
 matplotlib

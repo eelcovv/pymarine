@@ -9,11 +9,16 @@ def _from_matlab_to_python_num_days(x):
     # matlab epoch time start at the year 0 , python at the 1-1-0001. Both
     # formats differ 366 days. So to convert the matlab format to the python
     # format, convert it here
-    return datetime.datetime.fromordinal(int(x)) + datetime.timedelta(
-        days=x % 1) - datetime.timedelta(days=366)
+    return (
+        datetime.datetime.fromordinal(int(x))
+        + datetime.timedelta(days=x % 1)
+        - datetime.timedelta(days=366)
+    )
 
 
-_from_matlab_to_python_num_days_vectorized = np.vectorize(_from_matlab_to_python_num_days)
+_from_matlab_to_python_num_days_vectorized = np.vectorize(
+    _from_matlab_to_python_num_days
+)
 
 
 def matlabnum2date(x):
@@ -70,68 +75,8 @@ def matlabnum2date(x):
     return number_of_days
 
 
-def _datetime2matlabdn(dt):
-    # low level implementation of the python to matlab numerical date time convention. In principal
-    # just 360 days are added to the input value
-    mdn = dt + datetime.timedelta(days=366)
-    delta_date = dt - datetime.datetime(dt.year, dt.month, dt.day, 0, 0, 0)
-    frac_seconds = delta_date.seconds / (24.0 * 60.0 * 60.0)
-    frac_microseconds = dt.microsecond / (24.0 * 60.0 * 60.0 * 1000000.0)
-    return mdn.toordinal() + frac_seconds + frac_microseconds
-
-
-def datenum2matlabnumdn(x):
-    """Convert date/time representation in number of days since 0001-01 00:00:00 (Python convention)
-    to number of days since 0000-00 00:00:00 (Matlab convention)
-
-    Parameters
-    ----------
-    x : float or ndarray
-        Date/time representation for Python system with the number of days since 0001 01 00:00:00
-
-    Returns
-    -------
-    date_time_num_matlab : ndarray or scalar
-        Numerical date/time representation in the Matlab convention corresponding to the numerical
-        date/time representation `x` in the Python convention
-
-    Examples
-    --------
-    First obtain a date/time in numerical representation. We use the matplotlib.dates.date2num
-    function for this.
-
-    >>> from matplotlib.dates import date2num
-    >>> date_time = datetime.datetime(2012, 12, 21, 12, 12, 12)
-    >>> num_date_python = date2num(date_time)
-    >>> print("{:.7e}".format(num_date_python))
-    7.3485851e+05
-
-    This value is the Python numerical data/time definition, ie. represents the number of days since
-    0001-01 00:00:00
-
-    In order to convert this to the Matlab numerical date time definition we can do
-
-    >>> num_date_matlab_conv = datenum2matlabnumdn(num_date_python)
-    >>> print("{:.7e}".format(num_date_matlab_conv))
-    7.3522451e+05
-
-    which represents the number of days since 0000-00 00:00:00. Note that the difference between the
-    two definitions is indeed 366 days:
-
-    >>> num_date_matlab_conv - num_date_python
-    366.0
-
-    This is one year (365 days) plus one, since Matlab starts at January 0, Python at January 1
-
-    """
-    dt = datetime.datetime.fromordinal(int(x)) + datetime.timedelta(days=x % 1)
-    date_time_num_matlab = _datetime2matlabdn(dt)
-
-    return date_time_num_matlab
-
-
 def valid_date(s):
-    """ Check if supplied data *s* is a valid date for the format Year-Month-Day
+    """Check if supplied data *s* is a valid date for the format Year-Month-Day
 
     Parameters
     ----------

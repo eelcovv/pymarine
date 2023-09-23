@@ -1,13 +1,15 @@
 """
 Collection of functions dealing with geographical coordinates based on the *LatLon* module.
 """
+import logging
 import fastkml as kml
 import numpy as np
 import pandas as pd
-from LatLon.LatLon import (LatLon)
+from latloncalc.latlon import LatLon
 from scipy.constants import nautical_mile
 
-from hmc_utils.misc import get_logger
+
+_logger = logging.getLogger(__name__)
 
 
 class LocationCheck(object):
@@ -33,7 +35,6 @@ class LocationCheck(object):
     """
 
     def __init__(self, longitude, latitude, distance_deviation_allowed=10):
-        self.logger = get_logger(__name__)
         self.target_location = LatLon(latitude, longitude)
         self.distance_deviation_allowed = float(distance_deviation_allowed)
         self.distance = None
@@ -105,12 +106,16 @@ class LocationCheck(object):
 
         self.distance = self.current_location.distance(self.target_location)
 
-        self.logger.debug("Distance forecast location {} with target location {}: {}"
-                          "".format(self.current_location, self.target_location, self.distance))
+        _logger.debug(
+            "Distance forecast location {} with target location {}: {}"
+            "".format(self.current_location, self.target_location, self.distance)
+        )
 
         if self.distance > self.distance_deviation_allowed:
-            self.logger.debug("Distance {} out of range of {} with {} km"
-                              "".format(self.distance, self.target_location, self.distance))
+            _logger.debug(
+                "Distance {} out of range of {} with {} km"
+                "".format(self.distance, self.target_location, self.distance)
+            )
             out_of_range = True
         else:
             out_of_range = False
@@ -120,14 +125,24 @@ class LocationCheck(object):
     def make_report(self):
 
         msg = "{:20s} : {} {}"
-        self.logger.info(msg.format("Target location set at", self.target_location, ""))
-        self.logger.info(msg.format("Maximum distance deviation allowed",
-                                    self.distance_deviation_allowed, " km"))
+        _logger.info(msg.format("Target location set at", self.target_location, ""))
+        _logger.info(
+            msg.format(
+                "Maximum distance deviation allowed",
+                self.distance_deviation_allowed,
+                " km",
+            )
+        )
 
 
-def get_speed_from_distance_and_time(trajectory, distance_name="travel_distance",
-                                     speed_name="speed_sustained", datetime_name="DateTime",
-                                     travel_time_name="travel_time", speed_max_clip=None):
+def get_speed_from_distance_and_time(
+    trajectory,
+    distance_name="travel_distance",
+    speed_name="speed_sustained",
+    datetime_name="DateTime",
+    travel_time_name="travel_time",
+    speed_max_clip=None,
+):
     """Calculate the speed based on the travel distance and travel time.
 
     Parameters
@@ -201,7 +216,7 @@ def get_speed_from_distance_and_time(trajectory, distance_name="travel_distance"
     # make sure we are dealing with date/time, not strings
     date_time = pd.Series([pd.Timestamp(t) for t in date_time])
 
-    time_in_hour = ((date_time - date_time[0]) / pd.Timedelta('1 hour'))
+    time_in_hour = (date_time - date_time[0]) / pd.Timedelta("1 hour")
     delta_time = time_in_hour.diff().fillna(1).values
     trajectory[travel_time_name] = time_in_hour.values
     trajectory[speed_name] = trajectory[distance_name].diff().fillna(0) / delta_time
@@ -225,10 +240,13 @@ def get_speed_from_distance_and_time(trajectory, distance_name="travel_distance"
     return trajectory
 
 
-def travel_distance_and_heading_from_coordinates(db, latitude_name="GPS_LATITUDE",
-                                                 longitude_name="GPS_LONGITUDE",
-                                                 heading_name="HEADING",
-                                                 travel_distance_name="travel_distance"):
+def travel_distance_and_heading_from_coordinates(
+    db,
+    latitude_name="GPS_LATITUDE",
+    longitude_name="GPS_LONGITUDE",
+    heading_name="HEADING",
+    travel_distance_name="travel_distance",
+):
     """
     Calculate the travel distance and optionally the heading based on the latitude and longitude
     columns in the DataFrame `db`
@@ -308,7 +326,6 @@ def travel_distance_and_heading_from_coordinates(db, latitude_name="GPS_LATITUDE
 
     """
 
-    log = get_logger(__name__)
 
     n_rows = db.index.size
 
@@ -323,17 +340,17 @@ def travel_distance_and_heading_from_coordinates(db, latitude_name="GPS_LATITUDE
     else:
         # check if headings is not empty
         if True in db[heading_name].isnull():
-            log.debug("empty heading. filling it with zeros")
+            _logger.debug("empty heading. filling it with zeros")
             headings = np.zeros(n_rows)
 
-    log.debug("Start loop {} ".format(LatLon))
+    _logger.debug("Start loop {} ".format(LatLon))
     # loop over all the lines
     for i in range(n_rows):
         # get the coordinates from the GPS_LATITUDE and GPS_LONGITUDE columns and turn into a LatLon
         # object
         latitude = db[latitude_name].values[i]
         longitude = db[longitude_name].values[i]
-        log.debug("Converting {} {} with {}".format(latitude, longitude, LatLon))
+        _logger.debug("Converting {} {} with {}".format(latitude, longitude, LatLon))
         coordinates = LatLon(latitude, longitude)
 
         if last_coordinates is None:
@@ -343,7 +360,9 @@ def travel_distance_and_heading_from_coordinates(db, latitude_name="GPS_LATITUDE
             # for all other row, calculate the travel distance wro the last position. Convert to
             # miles
             try:
-                displacement = coordinates.distance(last_coordinates) / (nautical_mile / 1000.0)
+                displacement = coordinates.distance(last_coordinates) / (
+                    nautical_mile / 1000.0
+                )
             except ValueError:
                 displacement = 0
 
@@ -369,9 +388,15 @@ def travel_distance_and_heading_from_coordinates(db, latitude_name="GPS_LATITUDE
     return db
 
 
-def import_way_points(file_name, latitude_name="latitude", longitude_name="longitude",
-                      heading_name="heading", travel_distance_name="travel_distance",
-                      n_distance_points=2000, start_wp=None):
+def import_way_points(
+    file_name,
+    latitude_name="latitude",
+    longitude_name="longitude",
+    heading_name="heading",
+    travel_distance_name="travel_distance",
+    n_distance_points=2000,
+    start_wp=None,
+):
     """Import the way points of a Google Earth kml file.
 
     Parameters
@@ -470,7 +495,6 @@ def import_way_points(file_name, latitude_name="latitude", longitude_name="longi
 
     """
 
-    logger = get_logger(__name__)
 
     # open the google earth kml file. Do it as binary in order to avoid decoding issues
     with open(file_name, "rb") as fp:
@@ -486,40 +510,57 @@ def import_way_points(file_name, latitude_name="latitude", longitude_name="longi
             for cnt, k_level3 in enumerate(k_level2.features()):
                 point = k_level3.geometry
                 if start_wp is not None and cnt < start_wp:
-                    logger.debug("Skipping Way point {}: lat = {} lon = {}"
-                                 "".format(cnt, point.x, point.y))
+                    _logger.debug(
+                        "Skipping Way point {}: lat = {} lon = {}"
+                        "".format(cnt, point.x, point.y)
+                    )
                     continue
                 longitudes.append(point.x)
                 latitudes.append(point.y)
-                logger.debug("Adding Way point {}: lat = {} lon = {}"
-                             "".format(cnt, latitudes[-1], longitudes[-1]))
+                _logger.debug(
+                    "Adding Way point {}: lat = {} lon = {}"
+                    "".format(cnt, latitudes[-1], longitudes[-1])
+                )
 
     # create data frame out of way point coordinates and return
-    df = pd.DataFrame(data=np.vstack((latitudes, longitudes)).T,
-                      columns=[latitude_name, longitude_name])
+    df = pd.DataFrame(
+        data=np.vstack((latitudes, longitudes)).T,
+        columns=[latitude_name, longitude_name],
+    )
 
     # calculate the travel distance
-    df = travel_distance_and_heading_from_coordinates(df, latitude_name=latitude_name,
-                                                      longitude_name=longitude_name,
-                                                      heading_name=heading_name,
-                                                      travel_distance_name=travel_distance_name)
+    df = travel_distance_and_heading_from_coordinates(
+        df,
+        latitude_name=latitude_name,
+        longitude_name=longitude_name,
+        heading_name=heading_name,
+        travel_distance_name=travel_distance_name,
+    )
 
     if n_distance_points is not None:
         df.set_index(travel_distance_name, inplace=True, drop=False)
         distances = np.linspace(0, df.index[-1], n_distance_points, endpoint=True)
-        df2 = pd.DataFrame(index=distances, columns=[latitude_name, longitude_name, heading_name])
+        df2 = pd.DataFrame(
+            index=distances, columns=[latitude_name, longitude_name, heading_name]
+        )
         df2[travel_distance_name] = distances
         df3 = pd.concat([df, df2]).sort_index().interpolate()
-        df3 = df3.reset_index().drop_duplicates(
-            keep="first", subset=travel_distance_name).set_index(travel_distance_name)
+        df3 = (
+            df3.reset_index()
+            .drop_duplicates(keep="first", subset=travel_distance_name)
+            .set_index(travel_distance_name)
+        )
         df3 = df3.reindex(df2.index)
         df3.reset_index(inplace=True, drop=True)
         df3.drop("index", axis=1, inplace=True)
 
-        df = travel_distance_and_heading_from_coordinates(df3, latitude_name=latitude_name,
-                                                          longitude_name=longitude_name,
-                                                          heading_name=heading_name,
-                                                          travel_distance_name=travel_distance_name)
+        df = travel_distance_and_heading_from_coordinates(
+            df3,
+            latitude_name=latitude_name,
+            longitude_name=longitude_name,
+            heading_name=heading_name,
+            travel_distance_name=travel_distance_name,
+        )
 
     df.set_index(travel_distance_name, inplace=True, drop=True)
 

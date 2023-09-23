@@ -1,5 +1,5 @@
 """
-Some miscellaneous functions used throughout many hmc modules
+Some miscellaneous functions
 """
 import logging
 import os
@@ -11,6 +11,8 @@ import time
 from builtins import input
 from builtins import object
 from builtins import str
+
+logger = logging.getLogger(__name__)
 
 try:
     import dateutil.parser as dparser
@@ -45,7 +47,7 @@ except ImportError:
     yamlordereddictloader = None
 
 try:
-    from hmc_utils import Q_
+    from pymarine.utils import Q_
 except ImportError:
     Q_ = None
 
@@ -131,7 +133,6 @@ class Timer(object):
 
     def __init__(self, message="Elapsed time", name="routine", verbose=True, units='ms', n_digits=0,
                  field_width=20):
-        self.logger = get_logger(__name__)
         self.verbose = verbose
         self.message = message
         self.name = name
@@ -163,95 +164,15 @@ class Timer(object):
         self.secs = float(self.delta_time / np.timedelta64(1, "s"))
 
         # debug output
-        self.logger.debug("Found delta time in ns: {}".format(self.delta_time))
+        logger.debug("Found delta time in ns: {}".format(self.delta_time))
 
         if self.verbose:
             # convert the delta time to the desired units
             duration = self.delta_time / np.timedelta64(1, self.units)
 
             # produce output
-            self.logger.info(self.format_string.format(self.message, self.name, duration,
+            logger.info(self.format_string.format(self.message, self.name, duration,
                                                        self.units))
-
-
-def get_logger(name):
-    """Get the logger of the current level and set the level based on the main routine. Then return
-    it
-
-    Parameters
-    ----------
-    name : str
-        the name of the logger to set.
-
-    Returns
-    -------
-    type
-        log: a handle of the current logger
-
-    Notes
-    -----
-    This routine is used on top of each function to get the handle to the current logger and
-    automatically set the verbosity level of the logger based on the main function
-
-    Examples
-    --------
-
-    Assume you define a function which need to generate logging information based on the logger
-    created in the main program. In that case you can do
-
-    >>> def small_function():
-    ...    logger = get_logger(__name__)
-    ...    logger.info("Inside 'small_function' This is information to the user")
-    ...    logger.debug("Inside 'small_function' This is some debugging stuff")
-    ...    logger.warning("Inside 'small_function' This is a warning")
-    ...    logger.critical("Inside 'small_function' The world is collapsing!")
-
-    The logger can be created in the main program using the create_logger routine
-
-    >>> def main(logging_level):
-    ...     main_logger = create_logger(console_log_level=logging_level)
-    ...     main_logger.info("Some information in the main")
-    ...     main_logger.debug("Now we are calling the function")
-    ...     small_function()
-    ...     main_logger.debug("We are back in the main function")
-
-    Let's call the main fuction in DEBUGGING mode
-
-    >>> main(logging.DEBUG)
-      INFO : Some information in the main
-     DEBUG : Now we are calling the function
-      INFO : Inside 'small_function' This is information to the user
-     DEBUG : Inside 'small_function' This is some debugging stuff
-    WARNING : Inside 'small_function' This is a warning
-    CRITICAL : Inside 'small_function' The world is collapsing!
-     DEBUG : We are back in the main function
-
-
-    You can see that the logging level inside the `small_function` is obtained from the main level.
-    Do the same but now in the normal information mode
-
-    >>> main(logging.INFO)
-      INFO : Some information in the main
-      INFO : Inside 'small_function' This is information to the user
-    WARNING : Inside 'small_function' This is a warning
-    CRITICAL : Inside 'small_function' The world is collapsing!
-
-    We can call in the silent mode, suppressing all debugging and normal info, but not Warnings
-
-    >>> main(logging.WARNING)
-    WARNING : Inside 'small_function' This is a warning
-    CRITICAL : Inside 'small_function' The world is collapsing!
-
-    Finally, to suppress everything except for critical warnings
-
-    >>> main(logging.CRITICAL)
-    CRITICAL : Inside 'small_function' The world is collapsing!
-
-    """
-    # the logger is based on the current main routine
-    log = logging.getLogger(name)
-    log.setLevel(logging.getLogger("__main__").getEffectiveLevel())
-    return log
 
 
 def is_exe(fpath):
@@ -965,6 +886,7 @@ def set_default_dimension(parse_value, default_dimension=None, force_default_uni
 
     Returns
     -------
+
     :obj:`Quantity`
         Value with the quantity as give by the default
 
@@ -997,7 +919,6 @@ def set_default_dimension(parse_value, default_dimension=None, force_default_uni
     default dimension of *meter* to it in case the value do not have an explicit dimension yet.
     Just do
 
-    >>> logger = create_logger(console_log_level=logging.CRITICAL)
     >>> value_without_dimension = 1.0  # this is the values as we read from the text file
     >>> value_with_dimension = set_default_dimension(value_without_dimension, "meter")
     >>> print(value_with_dimension)
@@ -1036,12 +957,11 @@ def set_default_dimension(parse_value, default_dimension=None, force_default_uni
 
     Notes
     -----
-    * Hz are not converted to rad/s as expected. Therefore do not try to use this to convert
+    * Hz are not converted to rad/s as expected. Therefore, do not try to use this to convert
       Hz -> rad/s
     * If the input argument *parse_val* is None, a None is returned as output as well
 
     """
-    logger = get_logger(__name__)
     if default_dimension is not None:
         def_unit_val = Q_(1, default_dimension)
     else:

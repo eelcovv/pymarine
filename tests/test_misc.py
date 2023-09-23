@@ -6,16 +6,31 @@ import re
 import sys
 import time
 
-from numpy.testing import (assert_almost_equal, assert_string_equal, assert_equal, assert_raises)
+from numpy.testing import (
+    assert_almost_equal,
+    assert_string_equal,
+    assert_equal,
+    assert_raises,
+)
 from numpy import array
 
 try:
-    from hmc_utils import Q_
+    from pymarine.utils import Q_
 except ImportError:
     Q_ = None
-from hmc_utils.misc import (Chdir, Timer, get_logger, is_exe, clear_path, create_logger,
-                            get_clean_version, get_python_version_number, get_regex_pattern,
-                            clear_argument_list, set_default_dimension, get_value_magnitude)
+from pymarine.utils.misc import (
+    Chdir,
+    Timer,
+    is_exe,
+    clear_path,
+    create_logger,
+    get_clean_version,
+    get_python_version_number,
+    get_regex_pattern,
+    clear_argument_list,
+    set_default_dimension,
+    get_value_magnitude,
+)
 
 
 def test_timer():
@@ -32,9 +47,6 @@ def test_chdir():
 
     assert_string_equal(python_dir, current_dir)
 
-
-def test_get_logger():
-    get_logger("test_name")
 
 
 def test_is_exe():
@@ -83,12 +95,12 @@ def test_clear_argument_list():
 
 
 def test_set_default_dimensions():
-    # in case no dimension is given we add the default dimension
+    # in case no dimension is given, we add the default dimension
     val_in = "1.0"
     val_out = set_default_dimension(val_in, "meter")
     assert_equal(val_out, Q_(val_in, "meter"))
 
-    # in case x dimension is given we do not the default dimension
+    # in case x dimension is given, we do not the default dimension
     val_in = Q_(2.0, "meter")
     val_out = set_default_dimension(val_in, "meter")
     assert_equal(val_out, Q_(val_in, "meter"))
@@ -147,5 +159,7 @@ def test_value_magnitude():
     velocity_knots_mag = get_value_magnitude(Q_("1.0 knots"))
     assert_almost_equal([velocity_knots_mag], [0.514444444])
 
-    velocity_knots_mag = get_value_magnitude(Q_("1.0 knots"), convert_to_base_units=False)
+    velocity_knots_mag = get_value_magnitude(
+        Q_("1.0 knots"), convert_to_base_units=False
+    )
     assert_almost_equal([velocity_knots_mag], [1.0])
