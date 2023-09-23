@@ -1,0 +1,8 @@
+python-dateutil
+numpy
+pandas
+scipy
+matplotlib
+seaborn
+importlib_metadata
+setuptools
