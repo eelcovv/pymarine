@@ -8,7 +8,9 @@ pytest-cov
 colorcet
 latloncalc
 h5py
+netCDF4
 scipy
+statsmodels
 matplotlib
 seaborn
 importlib_metadata

@@ -4,13 +4,20 @@ import string
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
-from numpy.testing import (assert_almost_equal, assert_equal, assert_raises)
+from numpy.testing import assert_almost_equal, assert_equal, assert_raises
 from scipy.interpolate import interp1d
 import netCDF4 as nc
 
-from hmc_utils.numerical import (get_nearest_index, find_idx_nearest_val, ecdf2percentile,
-                                 get_column_with_max_cumulative_value, get_range_from_string,
-                                 extrap1d, loadmat, print_mat_nested)
+from pymarine.utils.numerical import (
+    get_nearest_index,
+    find_idx_nearest_val,
+    ecdf2percentile,
+    get_column_with_max_cumulative_value,
+    get_range_from_string,
+    extrap1d,
+    loadmat,
+    print_mat_nested,
+)
 
 DATA_DIR = "data"
 MATLAB_DATAFILE = "RAO_7.mat"
@@ -57,13 +64,24 @@ def test_ecdf2percentile():
     # calculate the cumulative distribution function of this random data using statsmodel
     e_cdf = sm.distributions.empirical_distribution.ECDF(x_data)
 
-    result = [ecdf2percentile(ecdf=e_cdf, percentile=x) for x in
-              np.linspace(0, 1, 10, endpoint=False)]
+    result = [
+        ecdf2percentile(ecdf=e_cdf, percentile=x)
+        for x in np.linspace(0, 1, 10, endpoint=False)
+    ]
     result_expected = np.array(
-        [0.46954761925470656, 9.6098407893963067, 14.335328740904639, 26.538949093944542,
-         38.344151882577769,
-         46.865120164770161, 57.594649555617927, 65.632958946527339, 77.423368943421664,
-         89.177300078207978])
+        [
+            0.46954761925470656,
+            9.6098407893963067,
+            14.335328740904639,
+            26.538949093944542,
+            38.344151882577769,
+            46.865120164770161,
+            57.594649555617927,
+            65.632958946527339,
+            77.423368943421664,
+            89.177300078207978,
+        ]
+    )
 
     assert_almost_equal(result, result_expected)
 
@@ -73,8 +91,10 @@ def test_get_column_with_max_cumulative_value():
     n_cols = 5
     n_rows = 10
     # create a 10 x 5 data frame with random values with columns named as A, B, C, etc
-    data_frame = pd.DataFrame(np.random.random_sample((n_rows, n_cols)),
-                              columns=list(string.ascii_uppercase)[:n_cols])
+    data_frame = pd.DataFrame(
+        np.random.random_sample((n_rows, n_cols)),
+        columns=list(string.ascii_uppercase)[:n_cols],
+    )
     # obtain the name of the column with the maximum cumulative value
     col1 = get_column_with_max_cumulative_value(data_frame)
     col2 = get_column_with_max_cumulative_value(data_frame, regular_expression="[ABC]")
@@ -85,15 +105,15 @@ def test_get_column_with_max_cumulative_value():
 
 def test_get_range_from_string():
     r1 = get_range_from_string("0:10:2")
-    r1_expected = np.array([0., 2., 4., 6., 8., 10.])
+    r1_expected = np.array([0.0, 2.0, 4.0, 6.0, 8.0, 10.0])
     assert_almost_equal(r1, r1_expected)
 
     r2 = get_range_from_string("0:7")
-    r2_expected = np.array([0., 1., 2., 3., 4., 5., 6., 7.])
+    r2_expected = np.array([0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0])
     assert_almost_equal(r2, r2_expected)
 
     r3 = get_range_from_string("3:4:0.2")
-    r3_expected = np.array([3., 3.2, 3.4, 3.6, 3.8, 4.])
+    r3_expected = np.array([3.0, 3.2, 3.4, 3.6, 3.8, 4.0])
     assert_almost_equal(r3, r3_expected)
 
 
@@ -109,14 +129,34 @@ def test_extrap1d():
     yp_new = f_extra(xp_new)
 
     yp_exp = np.array(
-        [-0.3084645, 0.0487049, 0.3970778, 0.6922465, 0.8966717,
-         0.9843516, 0.9440572, 0.7807363, 0.5149139, 0.1801622,
-         -0.1801622, -0.5149139, -0.7807363, -0.9440572, -0.9843516,
-         -0.8966717, -0.6922465, -0.3970778, -0.0487049, 0.3084645])
+        [
+            -0.3084645,
+            0.0487049,
+            0.3970778,
+            0.6922465,
+            0.8966717,
+            0.9843516,
+            0.9440572,
+            0.7807363,
+            0.5149139,
+            0.1801622,
+            -0.1801622,
+            -0.5149139,
+            -0.7807363,
+            -0.9440572,
+            -0.9843516,
+            -0.8966717,
+            -0.6922465,
+            -0.3970778,
+            -0.0487049,
+            0.3084645,
+        ]
+    )
 
     debug_plot = False
     if debug_plot:
         import matplotlib.pyplot as plt
+
         plt.plot(xp_new, yp_new, "-o")
         plt.plot(xp, yp, "x")
         plt.show()
