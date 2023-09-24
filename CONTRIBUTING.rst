@@ -300,7 +300,13 @@ on PyPI_, the following steps can be used to release a new version for
 #. Run ``tox -e publish -- --repository pypi`` and check that everything was
    uploaded to PyPI_ correctly.
 
+The following steps are done::
 
+    tox -e build
+    tox -e publish
+    pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pymarine
+    tox -e publish -- --repository pypi
+    pip install pymarine
 
 .. [#contrib1] Even though, these resources focus on open source projects and
    communities, the general ideas behind collaborating with other developers
