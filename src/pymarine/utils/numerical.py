@@ -82,7 +82,7 @@ def get_parameter_list_key(parlist):
     return keyname
 
 
-def get_column_with_max_cumulative_value(data, regular_expression='.*'):
+def get_column_with_max_cumulative_value(data, regular_expression=".*"):
     """Find the column of a pandas DataFrame with the maximum cumulative value
 
     Parameters
@@ -137,7 +137,7 @@ def get_column_with_max_cumulative_value(data, regular_expression='.*'):
         if re.match(regular_expression, col):
             columns.append(col)
     if columns:
-        name_of_maximum_column = data.fillna(0).sum()[columns[0]:columns[-1]].idxmax()
+        name_of_maximum_column = data.fillna(0).sum()[columns[0] : columns[-1]].idxmax()
     else:
         name_of_maximum_column = None
 
@@ -237,8 +237,10 @@ def get_nearest_index(data, value):
     """
     data_array = np.asanyarray(data)
     if (np.diff(data_array) < 0).any():
-        raise AssertionError("Only monotonic increasing arrays are allowed. "
-                             "Use `find_inx_nearest_val` instead ")
+        raise AssertionError(
+            "Only monotonic increasing arrays are allowed. "
+            "Use `find_inx_nearest_val` instead "
+        )
 
     sgn = np.sign(np.asarray(data) - value)
     try:
@@ -253,7 +255,7 @@ def get_nearest_index(data, value):
 
 
 def find_idx_nearest_val(array, value):
-    """ Find the nearest index of a value in a array.
+    """Find the nearest index of a value in a array.
 
     Parameters
     ----------
@@ -359,7 +361,7 @@ def get_range_from_string(range_string):
     >>> get_range_from_string("3:4:0.2")
     array([ 3. ,  3.2,  3.4,  3.6,  3.8,  4. ])
     """
-    values = range_string.split(':')
+    values = range_string.split(":")
     try:
         start = values[0]
         stop = values[1]
@@ -375,8 +377,10 @@ def get_range_from_string(range_string):
         stop = float(stop)
         spacing = float(spacing)
     except ValueError:
-        raise AssertionError("Could not convert one of the value to a float from string {}"
-                             "".format(range_string))
+        raise AssertionError(
+            "Could not convert one of the value to a float from string {}"
+            "".format(range_string)
+        )
 
     n_points = int((stop - start) / spacing) + 1
 
@@ -469,7 +473,9 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
         first_row = data_2d[0, :].reshape(1, data_2d.shape[1]) + add_constant
         data_2d_periodic = np.vstack((data_2d, first_row))
     else:
-        raise AssertionError("Argument `axis` can only be 0 or 1. {} given.".format(axis))
+        raise AssertionError(
+            "Argument `axis` can only be 0 or 1. {} given.".format(axis)
+        )
 
     return data_2d_periodic
 
@@ -610,8 +616,9 @@ def print_mat_nested(d, indent=0, nkeys=0):
 
     # Subset dictionary to limit keys to print.  Only works on first level
     if nkeys > 0:
-        d = {k: d[k] for k in
-             sorted(d.keys())[:nkeys]}  # Dictionary comprehension: limit to first nkeys keys.
+        d = {
+            k: d[k] for k in sorted(d.keys())[:nkeys]
+        }  # Dictionary comprehension: limit to first nkeys keys.
 
     if isinstance(d, dict):
         for key in sorted(d.keys()):  # loops through key, sort them
@@ -619,8 +626,9 @@ def print_mat_nested(d, indent=0, nkeys=0):
             print("{}{}{}".format("\t" * indent, "Key: ", str(key)))
             print_mat_nested(value, indent + 1)
 
-    if isinstance(d,
-                  np.ndarray) and d.dtype.names is not None:  # Note: and short-circuits by default
+    if (
+        isinstance(d, np.ndarray) and d.dtype.names is not None
+    ):  # Note: and short-circuits by default
         for n in d.dtype.names:  # This means it's a struct, it's bit of a kludge test.
             print("{}{}{}".format("\t" * indent, "Field: ", str(key)))
             print_mat_nested(d[n], indent + 1)

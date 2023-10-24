@@ -123,7 +123,6 @@ class LocationCheck(object):
         return out_of_range
 
     def make_report(self):
-
         msg = "{:20s} : {} {}"
         _logger.info(msg.format("Target location set at", self.target_location, ""))
         _logger.info(
@@ -326,7 +325,6 @@ def travel_distance_and_heading_from_coordinates(
 
     """
 
-
     n_rows = db.index.size
 
     last_coordinates = None
@@ -494,7 +492,6 @@ def import_way_points(
     Name: longitude, dtype: float64
 
     """
-
 
     # open the google earth kml file. Do it as binary in order to avoid decoding issues
     with open(file_name, "rb") as fp:

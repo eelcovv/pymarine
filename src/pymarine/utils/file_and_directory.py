@@ -6,7 +6,12 @@ import os
 
 import pandas as pd
 
-from hmc_utils.misc import (get_regex_pattern, get_logger, clear_path, get_time_stamp_from_string)
+from hmc_utils.misc import (
+    get_regex_pattern,
+    get_logger,
+    clear_path,
+    get_time_stamp_from_string,
+)
 
 MSG_FORMAT = "{:30s} : {}"
 
@@ -57,21 +62,22 @@ def get_path_depth(path_name):
     return depth
 
 
-def scan_base_directory(walk_dir=".",
-                        supplied_file_list=None,
-                        file_has_string_pattern="",
-                        file_has_not_string_pattern="",
-                        dir_has_string_pattern="",
-                        dir_has_not_string_pattern="",
-                        start_date_time=None,
-                        end_date_time=None,
-                        time_zone=None,
-                        time_stamp_year_first=True,
-                        time_stamp_day_first=False,
-                        extension=None,
-                        max_depth=None,
-                        sort_file_base_names=False
-                        ):
+def scan_base_directory(
+    walk_dir=".",
+    supplied_file_list=None,
+    file_has_string_pattern="",
+    file_has_not_string_pattern="",
+    dir_has_string_pattern="",
+    dir_has_not_string_pattern="",
+    start_date_time=None,
+    end_date_time=None,
+    time_zone=None,
+    time_stamp_year_first=True,
+    time_stamp_day_first=False,
+    extension=None,
+    max_depth=None,
+    sort_file_base_names=False,
+):
     """Recursively scan the directory `walk_dir` and get all files underneath obeying the search
     strings and/or date/time ranges
 
@@ -194,7 +200,6 @@ def scan_base_directory(walk_dir=".",
     file_list = list()
     log.debug("Scanning directory {}".format(walk_dir))
     for root, subdirs, files in os.walk(walk_dir, topdown=True):
-
         if supplied_file_list is not None:
             root = "."
             subdirs[:] = list()
@@ -233,10 +238,8 @@ def scan_base_directory(walk_dir=".",
                 subdirs[:] = include_dirs
 
         for filename in files:
-
             (filebase, ext) = os.path.splitext(filename)
             if extension is None or extension == ext:
-
                 add_file = False
 
                 if file_has_string is None or bool(file_has_string.search(filebase)):
@@ -254,12 +257,17 @@ def scan_base_directory(walk_dir=".",
                         # valid so may not be None
                         add_file = False
 
-                if add_file and (start_date_time is not None or end_date_time is not None):
+                if add_file and (
+                    start_date_time is not None or end_date_time is not None
+                ):
                     # we have supplied a start time or a end time. See if we can get a date time
                     # from the file name
                     file_time_stamp = get_time_stamp_from_string(
-                        string_with_date_time=filebase, yearfirst=time_stamp_year_first,
-                        dayfirst=time_stamp_day_first, timezone=time_zone)
+                        string_with_date_time=filebase,
+                        yearfirst=time_stamp_year_first,
+                        dayfirst=time_stamp_day_first,
+                        timezone=time_zone,
+                    )
 
                     if file_time_stamp is not None:
                         # we found a file time stamp. Compare it with the start time
@@ -269,7 +277,9 @@ def scan_base_directory(walk_dir=".",
                                 start_date_time = get_time_stamp_from_string(
                                     string_with_date_time=start_date_time,
                                     yearfirst=time_stamp_year_first,
-                                    dayfirst=time_stamp_day_first, timezone=time_zone)
+                                    dayfirst=time_stamp_day_first,
+                                    timezone=time_zone,
+                                )
 
                             if file_time_stamp < start_date_time:
                                 # the file time stamp is smaller, so don't add it
@@ -280,7 +290,9 @@ def scan_base_directory(walk_dir=".",
                                 end_date_time = get_time_stamp_from_string(
                                     string_with_date_time=end_date_time,
                                     yearfirst=time_stamp_year_first,
-                                    dayfirst=time_stamp_day_first, timezone=time_zone)
+                                    dayfirst=time_stamp_day_first,
+                                    timezone=time_zone,
+                                )
                             if file_time_stamp >= end_date_time:
                                 # the file time stamp is larger, so don't add it
                                 add_file = False
@@ -304,8 +316,11 @@ def scan_base_directory(walk_dir=".",
     # sort on the file name. First split the file base from the path, because if the file are in
     # different directories, the first file is not necessarily the oldest
     if sort_file_base_names:
-        df = pd.DataFrame(data=file_list, index=[os.path.split(f)[1] for f in file_list],
-                          columns=["file_list"])
+        df = pd.DataFrame(
+            data=file_list,
+            index=[os.path.split(f)[1] for f in file_list],
+            columns=["file_list"],
+        )
         df.sort_index(inplace=True)
         file_list = df.file_list.values
 
@@ -342,9 +357,15 @@ def make_directory(directory):
         if exc.errno == errno.EEXIST and os.path.isdir(directory):
             # the output directory already exists, that is ok so just continue
             logger.debug(
-                "Directory {} already exists. No problem, we just continue".format(directory))
+                "Directory {} already exists. No problem, we just continue".format(
+                    directory
+                )
+            )
         else:
             # something else was wrong. Raise an error
             logger.warning(
-                "Failed to create the directory {} because raised:\n{}".format(directory, exc))
+                "Failed to create the directory {} because raised:\n{}".format(
+                    directory, exc
+                )
+            )
             raise

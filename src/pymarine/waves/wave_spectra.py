@@ -51,7 +51,7 @@ def omega_peak_jonswap(wind_speed, fetch):
     with :math:`U_w`  the wind speed and :math:`F` the fetch length
     """
 
-    return 22 * (g0 ** 2 / (wind_speed * fetch)) ** (1.0 / 3.0)
+    return 22 * (g0**2 / (wind_speed * fetch)) ** (1.0 / 3.0)
 
 
 def alpha_jonswap(wind_speed, fetch):
@@ -83,7 +83,7 @@ def alpha_jonswap(wind_speed, fetch):
     * Deprecated: it is better to define the Jonswap spectrum by explicitly specifying Hs and Tp
 
     """
-    return 0.076 * (wind_speed ** 2 / (fetch * g0)) ** 0.22
+    return 0.076 * (wind_speed**2 / (fetch * g0)) ** 0.22
 
 
 # @profile
@@ -344,7 +344,7 @@ def spectrum_gauss(omega, Hs=1.0, Tp=10.0, sigma=0.0625, spectral_version="dnv")
                 sigma = 0.0625
             psd = (
                 (Hs / 4.0) ** 2
-                * np.exp(-((omega - omega_peak) ** 2) / (2 * sigma ** 2))
+                * np.exp(-((omega - omega_peak) ** 2) / (2 * sigma**2))
                 / (sigma * np.sqrt(2 * np.pi))
             )
         else:
@@ -375,7 +375,7 @@ def ag_taylor_expand(gamma):
     a_list = [0.60077816, -0.21413165, 0.08440066, -0.03609301, 0.03850485, -0.02472358]
     ag = 0
     for p, a in enumerate(a_list):
-        ag += a * x ** p
+        ag += a * x**p
 
     return ag
 
@@ -489,7 +489,6 @@ def spectrum_jonswap(omega, Hs=1.0, Tp=10.0, gamma=3.3, spectral_version="dnv"):
         logger.info("Tp given yields a ZeroDivisionError. Return zero psd")
         psd = np.zeros(size)
     else:
-
         om = np.where(abs(omega) < TINY, np.full(size, TINY), np.full(size, abs(omega)))
 
         # set JS sigma 0.07 for omega<omega_peak and 0.09 otherwise
@@ -498,14 +497,14 @@ def spectrum_jonswap(omega, Hs=1.0, Tp=10.0, gamma=3.3, spectral_version="dnv"):
         # Pierson Moskowitz contribution
         SPM = (
             alpha
-            * Hs ** 2
-            * omega_peak ** 4
+            * Hs**2
+            * omega_peak**4
             * om ** (-5)
             * np.exp(-beta * (omega_peak / om) ** 4)
         )
 
         # Jonswap
-        rg = np.exp(-((om - omega_peak) ** 2 / (2.0 * (sigma ** 2) * omega_peak ** 2)))
+        rg = np.exp(-((om - omega_peak) ** 2 / (2.0 * (sigma**2) * omega_peak**2)))
 
         if spectral_version == "sim":
             # the only difference in the matlab implementation is in the Ag factor
@@ -518,7 +517,7 @@ def spectrum_jonswap(omega, Hs=1.0, Tp=10.0, gamma=3.3, spectral_version="dnv"):
                 "implemented. We found {}".format(spectral_version)
             )
 
-        SJS = Ag * gamma ** rg
+        SJS = Ag * gamma**rg
         psd = SJS * SPM
 
     return psd
@@ -701,19 +700,18 @@ def spectrum_jonswap_k_domain_2(
         logger.info("Tp given yields a ZeroDivisionError. Return zero psd")
         psd = np.zeros(kk.shape)
     else:
-
         # peak wave number based on deep water dispersion relation
-        kp = omega_peak ** 2 / g0
+        kp = omega_peak**2 / g0
 
         # set JS sigma 0.07 for omega<omega_peak and 0.09 otherwise. since kp=sqrt(om/g),
         # the same holds for kk
         sigma = sp.where(kk <= kp, np.full(size, 0.07), np.full(size, 0.09))
 
         # Pierson Moskowitz contribution
-        SPM = alpha * Hs ** 2 * kp ** 2 / (2 * kk ** 3) * np.exp(-beta * (kp / kk) ** 2)
+        SPM = alpha * Hs**2 * kp**2 / (2 * kk**3) * np.exp(-beta * (kp / kk) ** 2)
 
         # Jonswap
-        rg = np.exp(-((np.sqrt(kk) - np.sqrt(kp)) ** 2 / (2.0 * (sigma ** 2) * kp)))
+        rg = np.exp(-((np.sqrt(kk) - np.sqrt(kp)) ** 2 / (2.0 * (sigma**2) * kp)))
         if spectral_version == "sim":
             Ag = ag_taylor_expand(gamma)
         elif spectral_version == "dnv":
@@ -724,7 +722,7 @@ def spectrum_jonswap_k_domain_2(
                 "implemented"
             )
 
-        SJS = Ag * gamma ** rg
+        SJS = Ag * gamma**rg
 
         # power spectrum is multiplication of Pierson Moskowitz and jonswap correction
         psd = SPM * SJS
@@ -1244,7 +1242,7 @@ def omega_e_vs_omega(omega, u_monitor):
     and :math:`g_0=9.81~m/s^2` is the gravity constant
 
     """
-    omega_e = omega - omega ** 2 * u_monitor / g0
+    omega_e = omega - omega**2 * u_monitor / g0
     return omega_e
 
 
@@ -1885,7 +1883,7 @@ def rayleigh_pdf(omega, sigma):
 
     """
 
-    pdf = np.exp(-(omega ** 2) / (8 * sigma ** 2)) * omega / (4 * sigma ** 2)
+    pdf = np.exp(-(omega**2) / (8 * sigma**2)) * omega / (4 * sigma**2)
 
     return pdf
 
@@ -1930,7 +1928,7 @@ def rayleigh_cdf(omega, sigma):
 
     """
 
-    cdf = np.exp(-2 * (0.25 / sigma) ** 2 * omega ** 2)
+    cdf = np.exp(-2 * (0.25 / sigma) ** 2 * omega**2)
 
     return cdf
 

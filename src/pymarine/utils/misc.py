@@ -43,7 +43,9 @@ except ImportError:
 try:
     import yamlordereddictloader
 except ImportError:
-    print("Warning: yamlordereddictloader could not be imported. Some functions may fail")
+    print(
+        "Warning: yamlordereddictloader could not be imported. Some functions may fail"
+    )
     yamlordereddictloader = None
 
 try:
@@ -131,8 +133,15 @@ class Timer(object):
     True
     """
 
-    def __init__(self, message="Elapsed time", name="routine", verbose=True, units='ms', n_digits=0,
-                 field_width=20):
+    def __init__(
+        self,
+        message="Elapsed time",
+        name="routine",
+        verbose=True,
+        units="ms",
+        n_digits=0,
+        field_width=20,
+    ):
         self.verbose = verbose
         self.message = message
         self.name = name
@@ -142,14 +151,17 @@ class Timer(object):
         # build the format string. E.g. for field_with=20 and n_digits=1 and units=ms, this produces
         # the following
         # "{:<20s} : {:<20s} {:>10.1f} ms"
-        self.format_string = "{:<" + \
-                             "{}".format(field_width) + \
-                             "s}" + \
-                             " {:<" + \
-                             "{}".format(field_width) + \
-                             "s} : {:>" + "{}.{}".format(10, n_digits) + \
-                             "f}" + \
-                             " {}".format(self.units)
+        self.format_string = (
+            "{:<"
+            + "{}".format(field_width)
+            + "s}"
+            + " {:<"
+            + "{}".format(field_width)
+            + "s} : {:>"
+            + "{}.{}".format(10, n_digits)
+            + "f}"
+            + " {}".format(self.units)
+        )
 
     def __enter__(self):
         self.start = time.time()
@@ -159,7 +171,7 @@ class Timer(object):
         self.end = time.time()
 
         # start and end are in seconds. Convert time delta to nano seconds
-        self.delta_time = np.timedelta64(int(1e9 * (self.end - self.start)), 'ns')
+        self.delta_time = np.timedelta64(int(1e9 * (self.end - self.start)), "ns")
 
         self.secs = float(self.delta_time / np.timedelta64(1, "s"))
 
@@ -171,8 +183,9 @@ class Timer(object):
             duration = self.delta_time / np.timedelta64(1, self.units)
 
             # produce output
-            logger.info(self.format_string.format(self.message, self.name, duration,
-                                                       self.units))
+            logger.info(
+                self.format_string.format(self.message, self.name, duration, self.units)
+            )
 
 
 def is_exe(fpath):
@@ -194,8 +207,12 @@ def is_exe(fpath):
     the location of the program.
     """
     # use system command 'which' to locate the full location of the file
-    p = subprocess.Popen("which {}".format(fpath), shell=True, stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT)
+    p = subprocess.Popen(
+        "which {}".format(fpath),
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
     p_list = p.stdout.read().splitlines()
     if p_list:
         # which return a path so copy it to fpath
@@ -230,14 +247,15 @@ def clear_path(path_name):
     return str(pathlib.PurePath(path_name))
 
 
-def create_logger(log_file=None,
-                  console_log_level=logging.INFO,
-                  console_log_format_long=False,
-                  console_log_format_clean=False,
-                  file_log_level=logging.INFO,
-                  file_log_format_long=True,
-                  redirect_stderr=True
-                  ):
+def create_logger(
+    log_file=None,
+    console_log_level=logging.INFO,
+    console_log_format_long=False,
+    console_log_format_clean=False,
+    file_log_level=logging.INFO,
+    file_log_format_long=True,
+    redirect_stderr=True,
+):
     """Create a console logger
 
     Parameters
@@ -360,22 +378,26 @@ def create_logger(log_file=None,
     # create file handler if a file name is given with more info
     if log_file is not None:
         log_file_out = log_file + ".out"
-        fh = logging.FileHandler(log_file_out, mode='w')
+        fh = logging.FileHandler(log_file_out, mode="w")
         fh.setLevel(file_log_level)
 
         if redirect_stderr:
             error_file = log_file + ".err"
-            sys.stderr = open(error_file, 'w')
+            sys.stderr = open(error_file, "w")
 
-    formatter_long = logging.Formatter('[%(asctime)s] %(levelname)8s --- %(message)s ' +
-                                       '(%(filename)s:%(lineno)s)', datefmt='%Y-%m-%d %H:%M:%S')
-    formatter_normal = logging.Formatter('%(levelname)6s : %(message)s')
+    formatter_long = logging.Formatter(
+        "[%(asctime)s] %(levelname)8s --- %(message)s " + "(%(filename)s:%(lineno)s)",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    formatter_normal = logging.Formatter("%(levelname)6s : %(message)s")
 
-    formatter_short = logging.Formatter('%(message)s')
+    formatter_short = logging.Formatter("%(message)s")
 
     if console_log_format_clean and console_log_format_long:
-        raise AssertionError("Can only specify either a long or a short logging format. Not both "
-                             "at the same time")
+        raise AssertionError(
+            "Can only specify either a long or a short logging format. Not both "
+            "at the same time"
+        )
 
     # create formatter and add it to the handlers for the console output
     if console_log_format_long:
@@ -418,6 +440,7 @@ def delete_module(modname, paranoid=None):
          (Default value = None)
     """
     from sys import modules
+
     try:
         thismod = modules[modname]
     except KeyError:
@@ -427,7 +450,7 @@ def delete_module(modname, paranoid=None):
         try:
             paranoid[:]  # sequence support
         except IndexError:
-            raise ValueError('must supply a finite list for paranoid')
+            raise ValueError("must supply a finite list for paranoid")
         else:
             these_symbols = paranoid[:]
     del modules[modname]
@@ -438,7 +461,7 @@ def delete_module(modname, paranoid=None):
             pass
         if paranoid:
             for symbol in these_symbols:
-                if symbol[:2] == '__':  # ignore special symbols
+                if symbol[:2] == "__":  # ignore special symbols
                     continue
                 try:
                     delattr(mod, symbol)
@@ -523,14 +546,18 @@ def read_settings_file(file_name):
         configuration_file = file_name
     else:
         logger.info("Loading configuration file from script dir {}".format(__name__))
-        configuration_file = os.path.join(os.path.split(__file__)[0], os.path.split(file_name)[1])
+        configuration_file = os.path.join(
+            os.path.split(__file__)[0], os.path.split(file_name)[1]
+        )
     try:
         logger.debug("Trying to read configuration file {}".format(configuration_file))
         with open(configuration_file, "r") as stream:
             settings = yaml.load(stream=stream, Loader=yamlordereddictloader.Loader)
     except IOError as err:
-        raise AssertionError("Configuration file can not be found in either current directory of "
-                             "script directory. Goodbye. {}".format(err))
+        raise AssertionError(
+            "Configuration file can not be found in either current directory of "
+            "script directory. Goodbye. {}".format(err)
+        )
 
     return settings
 
@@ -633,8 +660,7 @@ def query_yes_no(question, default_answer="no"):
         "yes" or "no", depending on the input of the user
     """
     log = get_logger(__name__)
-    valid = {"yes": "yes", "y": "yes", "ye": "yes",
-             "no": "no", "n": "no"}
+    valid = {"yes": "yes", "y": "yes", "ye": "yes", "no": "no", "n": "no"}
     if not default_answer:
         prompt = " [y/n] "
     elif default_answer == "yes":
@@ -648,17 +674,23 @@ def query_yes_no(question, default_answer="no"):
         # sys.stdout.write(question + prompt)
         log.warning(question + prompt)
         choice = input().lower()
-        if default_answer is not None and choice == '':
+        if default_answer is not None and choice == "":
             return default_answer
         elif choice in list(valid.keys()):
             return valid[choice]
         else:
-            sys.stdout.write("Please respond with 'yes' or 'no' "
-                             "(or 'y' or 'n').\n")
+            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
-def print_banner(title, top_symbol="-", bottom_symbol=None, side_symbol=None, width=80,
-                 to_stdout=False, no_top_and_bottom=False):
+def print_banner(
+    title,
+    top_symbol="-",
+    bottom_symbol=None,
+    side_symbol=None,
+    width=80,
+    to_stdout=False,
+    no_top_and_bottom=False,
+):
     """Create a banner for plotting a bigger title above each section in the log output
 
     Parameters
@@ -712,11 +744,22 @@ def print_banner(title, top_symbol="-", bottom_symbol=None, side_symbol=None, wi
             side_symbol = top_symbol
 
     if not no_top_and_bottom:
-        message_string = "{}\n" + "{} ".format(side_symbol) + "{:" + "{:d}".format(width - 4) \
-                         + "}" + " {}".format(side_symbol) + "\n{}"
-        message = message_string.format(top_symbol * width, title, bottom_symbol * width)
+        message_string = (
+            "{}\n"
+            + "{} ".format(side_symbol)
+            + "{:"
+            + "{:d}".format(width - 4)
+            + "}"
+            + " {}".format(side_symbol)
+            + "\n{}"
+        )
+        message = message_string.format(
+            top_symbol * width, title, bottom_symbol * width
+        )
     else:
-        message_string = "{} ".format(side_symbol) + "{:" + "{:d}".format(width - 4) + "}"
+        message_string = (
+            "{} ".format(side_symbol) + "{:" + "{:d}".format(width - 4) + "}"
+        )
         message = message_string.format(title)
     if to_stdout:
         print("\n{}".format(message))
@@ -868,7 +911,9 @@ def compare_objects(obj1, obj2, counter=0, max_recursion_depth=4):
                 continue
 
 
-def set_default_dimension(parse_value, default_dimension=None, force_default_units=False):
+def set_default_dimension(
+    parse_value, default_dimension=None, force_default_units=False
+):
     """
     Add a *pint* dimension to a value
 
@@ -977,7 +1022,10 @@ def set_default_dimension(parse_value, default_dimension=None, force_default_uni
             v = Q_(parse_value[0])
             # if this is allowed we have and array. Check the value and dimension of the first
             # element
-            if v.dimensionality == dimensionless and v.units == dimensionless_unit_val.units:
+            if (
+                v.dimensionality == dimensionless
+                and v.units == dimensionless_unit_val.units
+            ):
                 if not isinstance(parse_value[0], type(dimensionless_unit_val)):
                     # there are no dimensions. Just convert the array, add the dimensions later
                     ret_val = Q_(parse_value)
@@ -990,11 +1038,15 @@ def set_default_dimension(parse_value, default_dimension=None, force_default_uni
                 # conversion below
                 parse_value = np.array([Q_(x).magnitude for x in parse_value])
                 ret_val = Q_(parse_value)
-                if def_unit_val is not None and v.dimensionality != def_unit_val.dimensionality:
+                if (
+                    def_unit_val is not None
+                    and v.dimensionality != def_unit_val.dimensionality
+                ):
                     raise AssertionError(
                         "The first value of the array given has a dimension with a different "
                         "dimensionality as the default dimension. Found {}. Expected {}"
-                        "".format(v.dimensionality, def_unit_val.dimensionality))
+                        "".format(v.dimensionality, def_unit_val.dimensionality)
+                    )
 
                 def_unit_val = v.units
         elif not isinstance(parse_value, type(dimensionless_unit_val)):
@@ -1004,19 +1056,26 @@ def set_default_dimension(parse_value, default_dimension=None, force_default_uni
             # the parser value is a quantity already. Just copy it
             ret_val = parse_value
 
-        if ret_val.dimensionality == dimensionless and ret_val.units == dimensionless_unit_val.units:
+        if (
+            ret_val.dimensionality == dimensionless
+            and ret_val.units == dimensionless_unit_val.units
+        ):
             # if no dimension is given, add the default dimension
             ret_val = Q_(np.asarray(parse_value), default_dimension)
             if ret_val.dimensionality != dimensionless:
-                logger.debug("A dimensionless value was and a default dimension was imposed "
-                             "{} -> {}.".format(parse_value, ret_val))
+                logger.debug(
+                    "A dimensionless value was and a default dimension was imposed "
+                    "{} -> {}.".format(parse_value, ret_val)
+                )
         elif def_unit_val is not None:
             # check if the dimensionality is the same as the def_units
             if ret_val.dimensionality != def_unit_val.dimensionality:
                 raise AssertionError(
                     "Value given has a dimension with a different dimensionality as the default "
-                    "dimension\nFound {}. Expected {}".format(ret_val.dimensionality,
-                                                              def_unit_val.dimensionality))
+                    "dimension\nFound {}. Expected {}".format(
+                        ret_val.dimensionality, def_unit_val.dimensionality
+                    )
+                )
 
         # we want to force the units. Check it
         if force_default_units:
@@ -1024,7 +1083,8 @@ def set_default_dimension(parse_value, default_dimension=None, force_default_uni
                 raise AssertionError(
                     "The dimensions given to the value do not match the default units. \n"
                     "Found {}. Expected {}\nPlease fix or set *only_default_units_allowed* "
-                    "to False".format(ret_val.units, def_unit_val.units))
+                    "to False".format(ret_val.units, def_unit_val.units)
+                )
     else:
         # in case a none value is given as input just return none as output
         ret_val = None
@@ -1109,8 +1169,9 @@ def get_value_magnitude(value, convert_to_base_units=True):
     return value_mag
 
 
-def get_time_stamp_from_string(string_with_date_time, yearfirst=True, dayfirst=False,
-                               timezone=None):
+def get_time_stamp_from_string(
+    string_with_date_time, yearfirst=True, dayfirst=False, timezone=None
+):
     """
     Try to get a date/time stamp from a string
 
@@ -1170,9 +1231,9 @@ def get_time_stamp_from_string(string_with_date_time, yearfirst=True, dayfirst=F
 
     """
     try:
-        file_time_stamp = dparser.parse(string_with_date_time, fuzzy=True,
-                                        yearfirst=yearfirst,
-                                        dayfirst=dayfirst)
+        file_time_stamp = dparser.parse(
+            string_with_date_time, fuzzy=True, yearfirst=yearfirst, dayfirst=dayfirst
+        )
         file_time_stamp = pd.Timestamp(file_time_stamp)
     except ValueError:
         file_time_stamp = None
@@ -1208,7 +1269,7 @@ class PackageInfo(object):
         self.build_date = None
         self.bundle_dir = None
 
-        if getattr(sys, 'frozen', False):
+        if getattr(sys, "frozen", False):
             # we are running in a bundle
             self.get_bundle_version()
         else:

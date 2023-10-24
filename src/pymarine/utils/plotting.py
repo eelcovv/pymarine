@@ -15,7 +15,7 @@ c_hmc = dict(
     red="#DD2E1A",
     lightred="#DD877E",
     green="#00CC00",
-    darkcyan="#2eb8b8"
+    darkcyan="#2eb8b8",
 )
 
 
@@ -120,7 +120,7 @@ def analyse_annotations(annotation):
     # first replace all white spaces from the string, as it is not allowed
     try:
         # see if there is an @ sign indicating that the position is specified
-        text, rest = annotation.split('@')
+        text, rest = annotation.split("@")
         try:
             # after the @ sign we start with the position between brackets (,). Find it
             pos, rest = re.sub("[(|)]", " ", rest).split()
@@ -149,7 +149,7 @@ def analyse_annotations(annotation):
             # in case of a value error we did not have a rest, so try again without split
             pos = re.sub("[(|)]", " ", rest)
         finally:
-            lx, ly = pos.split(',')
+            lx, ly = pos.split(",")
             lx = float(lx)
             ly = float(ly)
     except ValueError:
@@ -161,7 +161,9 @@ def analyse_annotations(annotation):
         try:
             color = c_hmc[hmc_color_name]
         except KeyError:
-            _logger.warning("color name not recognised: {}. Keeping black".format(color))
+            _logger.warning(
+                "color name not recognised: {}. Keeping black".format(color)
+            )
             color = "black"
 
     return text, lx, ly, color, size, axis

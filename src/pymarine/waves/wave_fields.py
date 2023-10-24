@@ -421,7 +421,6 @@ class Wave2D(object):
         Theta_0=0,
         Theta_s_spreading_factor=5,
     ):
-
         logger.info("Initialise JonSwap 1D wave field")
 
         if name is None:
@@ -605,7 +604,6 @@ class Wave2D(object):
 
     # @profile
     def update_x_k_theta_sample_space(self):
-
         self.theta_points = np.linspace(
             self.theta_min, self.theta_max, self.n_theta_nodes, endpoint=True
         )
@@ -636,7 +634,6 @@ class Wave2D(object):
         self.ky_nyquist = np.pi / self.delta_y
 
         if self.wave1D.wave_construction == "DFTpolar":
-
             # take the (non)-uniform wave vectors from the 1D wave
             self.update_k_polar_mesh()
 
@@ -659,7 +656,6 @@ class Wave2D(object):
 
     # @profile
     def calculate_spreading_function(self):
-
         self.D_spread = ms.spreading_function(
             theta=self.theta_points,
             theta0=self.Theta_0,
@@ -784,7 +780,6 @@ class Wave2D(object):
 
     # @profile
     def calculate_wave_surface(self):
-
         if not self.wave1D.wave_construction == "FFT":
             # For the DFT directly calculate the wave field from the spectral components
             self.amplitude = self.dft_complex_amplitudes(
@@ -1112,7 +1107,6 @@ class Wave2D(object):
         y_hs_label=0.92,
         zorder=0,
     ):
-
         if frame_index < 0:
             changed_list = list()
         else:
@@ -1756,7 +1750,6 @@ class Wave1D(object):
         spectral_version="sim",
         gravity0=g0,
     ):
-
         self.spectrum_type = spectrum_type
         self.spectral_version = spectral_version
 
@@ -2088,7 +2081,6 @@ class Wave1D(object):
     def limit_markers(
         ax, text, a_x, a_y, s_x=0, s_y=0, symbol="vy", arrow_color="black", fontsize=8
     ):
-
         ax.plot([a_x], [a_y], symbol)
         ax.annotate(
             text,
