@@ -1,0 +1,22 @@
+name: pymarine
+channels:
+  - conda-forge
+dependencies:
+  - python-dateutil
+  - fastkml
+  - numpy
+  - pandas
+  - pint
+  - colorcet
+  - latloncalc
+  - h5py
+  - netCDF4
+  - scipy
+  - statsmodels
+  - matplotlib
+  - seaborn
+  - importlib_metadata
+  - setuptools
+  - pip:
+      - .  # install git checkout of demo-dsproject in editable mode
+      - latloncalc
