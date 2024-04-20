@@ -93,7 +93,6 @@ class Timer:
 
     >>> from numpy import allclose
     >>> number_of_seconds = 1.0
-    >>> logger = create_logger(console_log_format_clean=True)
     >>> with Timer(units="s", n_digits=0) as timer:
     ...    time.sleep(number_of_seconds)
     Elapsed time         routine              :          1 s
@@ -512,8 +511,7 @@ def print_banner(
     -----
 
     Unless the option 'to_stdout' is set to True, the banner is printed via the logging
-    system. Therefore, a logger needs to be created first using `create_logger`
-
+    system. Therefore, a logger needs to be created first
     """
 
     logger.debug("message debug in print_banner")

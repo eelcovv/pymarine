@@ -13,7 +13,7 @@ from matplotlib.pyplot import figure, ioff, plot, show, title
 from numpy.fft import fftshift, ifftshift
 from scipy.constants import g as g0
 from scipy.interpolate import interp1d
-from scipy.ndimage.interpolation import rotate
+from scipy.ndimage import rotate
 
 import pymarine.utils.coordinate_transformations as acf
 from pymarine.utils.numerical import find_idx_nearest_val
