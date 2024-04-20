@@ -1773,16 +1773,15 @@ def specspecs(frequency, amplitude, lowlim=0.01, higlim=0.9, mirror=False):
 
     Returns
     -------
-    type
-        a tuple with the following values:
+    tuple:
+        A tuple with the following values:
 
         - f_min : frequency where spectrum first exceeds the threshold (0.01 of the
-                  peak value)
+          peak value)
         - f_peak : the location of the peak
         - f01 : the frequency below with there is only 1% of the energy
         - f96 : the frequency below with there is 96% of the energy. The interval
-                f01-f96 contains
-          95 percent !
+          f01-f96 contains 95 percent !
         - variance : total energy below spectrum
         - a_peak :  the value at the peak location
 
