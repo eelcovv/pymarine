@@ -408,7 +408,7 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
     axis: int
         Axis to make periodic. Default = 0
     add_constant : float
-        Add this constant to the copy row or column in order to allow to add 2*pi or 360
+        Add this constant to the copy row or column to allow to add 2*pi or 360
 
     Returns
     -------
@@ -474,12 +474,12 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
     -----
     This function can be used to ensure that a 2D data array with directions at one axis
     can be easily made periodic into the direction axis. This is a requirement to make a
-     polar plot
+    polar plot
 
     """
 
     if axis == 0:
-        # create a Mx1 array of the first column of the 2D data array
+        # Create a Mx1 array of the first column of the 2D data array
         first_col = data_2d[:, 0].reshape(data_2d.shape[0], 1) + add_constant
         data_2d_periodic = np.hstack((data_2d, first_col))
     elif axis == 1:

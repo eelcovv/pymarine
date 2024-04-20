@@ -2,6 +2,7 @@ colorcet
 fastkml
 h5py
 latloncalc
+lxml
 matplotlib
 netCDF4
 numpy
