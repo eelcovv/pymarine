@@ -1,18 +1,17 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import os
 import re
 import sys
 import time
 
+from numpy import array
 from numpy.testing import (
     assert_almost_equal,
-    assert_string_equal,
     assert_equal,
     assert_raises,
+    assert_string_equal,
 )
-from numpy import array
 
 try:
     from pymarine.utils import Q_
@@ -21,15 +20,14 @@ except ImportError:
 from pymarine.utils.misc import (
     Chdir,
     Timer,
-    is_exe,
+    clear_argument_list,
     clear_path,
-    create_logger,
     get_clean_version,
     get_python_version_number,
     get_regex_pattern,
-    clear_argument_list,
-    set_default_dimension,
     get_value_magnitude,
+    is_exe,
+    set_default_dimension,
 )
 
 
@@ -48,7 +46,6 @@ def test_chdir():
     assert_string_equal(python_dir, current_dir)
 
 
-
 def test_is_exe():
     # works only on linux
     test_file = "ls"
@@ -64,10 +61,6 @@ def test_clean_path():
     assert_string_equal(python_dir, new_path)
 
 
-def test_create_logger():
-    create_logger()
-
-
 def test_get_clean_version():
     version_number = "1.1"
     test_version_clean = "test_clean_version-" + version_number
@@ -81,9 +74,9 @@ def test_get_python_version_number():
 
 
 def test_get_regex_pattern():
-    regular_expression = "\s\d+\w"
+    regular_expression = r"\s\d+\w"
     result_1 = get_regex_pattern(regular_expression)
-    result_2 = re.compile("{}".format(regular_expression))
+    result_2 = re.compile(f"{regular_expression}")
     assert_equal(result_1, result_2)
 
 
@@ -132,8 +125,8 @@ def test_set_default_dimensions():
         assert_equal(x, Q_(val_in[i], "meter"))
     assert_equal(val_out.all(), Q_(val_in, "meter").all())
 
-    # we pass an array with dimension second while we request a default dimension of meter. This
-    # should raise an error
+    # We pass an array with dimension second while we request a default dimension of
+    # meter. This should raise an error
     val_in = Q_(array([0, 1, 2]), "second")
     assert_raises(AssertionError, set_default_dimension, val_in, "meter")
 
