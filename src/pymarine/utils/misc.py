@@ -1,6 +1,7 @@
 """
 Some miscellaneous functions
 """
+
 import logging
 import os
 import pathlib
@@ -8,54 +9,20 @@ import re
 import subprocess
 import sys
 import time
-from builtins import input
-from builtins import object
-from builtins import str
+
+import dateutil.parser as dparser
+import numpy as np
+import pandas as pd
+import yaml
+from numpy.testing import assert_equal
+
+from pymarine.utils import Q_
 
 logger = logging.getLogger(__name__)
 
-try:
-    import dateutil.parser as dparser
-except ImportError:
-    print("Warning: dateutil could not be imported. Some functions may fail")
-    dparser = None
 
-try:
-    import numpy as np
-except ImportError:
-    print("Warning: numpy could not be imported. Some functions may fail")
-    np = None
-else:
-    from numpy.testing import assert_equal
-
-try:
-    import pandas as pd
-except ImportError:
-    print("Warning: pandas could not be imported. Some functions may fail")
-    pd = None
-
-try:
-    import yaml
-except ImportError:
-    print("Warning: yaml could not be imported. Some functions may fail")
-    yaml = None
-
-try:
-    import yamlordereddictloader
-except ImportError:
-    print(
-        "Warning: yamlordereddictloader could not be imported. Some functions may fail"
-    )
-    yamlordereddictloader = None
-
-try:
-    from pymarine.utils import Q_
-except ImportError:
-    Q_ = None
-
-
-class Chdir(object):
-    """Class which allows to move to a directory, do something, and move back when done
+class Chdir:
+    """Class to move to a directory, do something, and move back when done
 
     Parameters
     ----------
@@ -64,8 +31,8 @@ class Chdir(object):
 
     Notes
     -----
-    Used on the Gompute cluster in the batch processing script to submit a job inside a directory
-    and then move back to the higher directory in order to move to the next case
+    Used on the Gompute cluster in the batch processing script to submit a job inside a
+    directory and then move back to the higher directory to move to the next case
 
     Examples
     --------
@@ -102,7 +69,7 @@ class Chdir(object):
         os.chdir(self.savedPath)
 
 
-class Timer(object):
+class Timer:
     """Class to measure the time it takes execute a section of code
 
     Parameters
@@ -121,7 +88,8 @@ class Timer(object):
     Example
     -------
 
-    Use a `with` / `as` construction to enclose the section of code which need to be timed
+    Use a `with` / `as` construction to enclose the section of code which need to be
+    timed
 
     >>> from numpy import allclose
     >>> number_of_seconds = 1.0
@@ -148,19 +116,19 @@ class Timer(object):
         self.units = units
         self.secs = None
 
-        # build the format string. E.g. for field_with=20 and n_digits=1 and units=ms, this produces
-        # the following
+        # Build the format string. E.g. for field_with=20 and n_digits=1 and units=ms,
+        # this produces the following
         # "{:<20s} : {:<20s} {:>10.1f} ms"
         self.format_string = (
             "{:<"
-            + "{}".format(field_width)
+            + f"{field_width}"
             + "s}"
             + " {:<"
-            + "{}".format(field_width)
+            + f"{field_width}"
             + "s} : {:>"
-            + "{}.{}".format(10, n_digits)
+            + f"{10}.{n_digits}"
             + "f}"
-            + " {}".format(self.units)
+            + f" {self.units}"
         )
 
     def __enter__(self):
@@ -176,7 +144,7 @@ class Timer(object):
         self.secs = float(self.delta_time / np.timedelta64(1, "s"))
 
         # debug output
-        logger.debug("Found delta time in ns: {}".format(self.delta_time))
+        logger.debug(f"Found delta time in ns: {self.delta_time}")
 
         if self.verbose:
             # convert the delta time to the desired units
@@ -203,12 +171,12 @@ def is_exe(fpath):
 
     Notes
     -----
-    This function can only be used on Linux file systems as the `which` command is used to identity
-    the location of the program.
+    This function can only be used on Linux file systems as the `which` command is used
+    to identity the location of the program.
     """
     # use system command 'which' to locate the full location of the file
     p = subprocess.Popen(
-        "which {}".format(fpath),
+        f"which {fpath}",
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -239,193 +207,12 @@ def clear_path(path_name):
 
     >>> long_path = os.path.join(".", "..", "ok", "yoo", ".", ".", "") + "/"
     >>> print(long_path)
-    .\..\ok\\yoo\.\.\/
+    .\\..\\ok\\yoo\\.\\.\\/
     >>> print(clear_path(long_path))
     ..\\ok\\yoo
 
     """
     return str(pathlib.PurePath(path_name))
-
-
-def create_logger(
-    log_file=None,
-    console_log_level=logging.INFO,
-    console_log_format_long=False,
-    console_log_format_clean=False,
-    file_log_level=logging.INFO,
-    file_log_format_long=True,
-    redirect_stderr=True,
-):
-    """Create a console logger
-
-    Parameters
-    ----------
-    log_file : str, optional
-        The name of the log file in case we want to write it to file. If it is not specified, no
-        file is created
-    console_log_level: int, optional
-        The level of the console output. Defaults to logging.INFO
-    console_log_format_long : bool
-        Use a long informative format for the logging output to the console
-    console_log_format_clean : bool
-        Use a very clean format for the logging output.  If given together with
-        consosl_log_format_long an
-        AssertionError is raised
-    file_log_level: int, optional
-        In case the log file is used, specify the log level. Can be different from the console log
-        level. Defaults to logging.INFO
-    file_log_format_long: bool, optional
-        Use a longer format for the file output. Default to True
-    redirect_stderr: bool, optional
-        If True the stderr output is written to a file with .err extension in stated of .out.
-        Default = True
-
-    Returns
-    -------
-    object
-        The handle to the logger which we can use to create output to the screen using the logging
-        module
-
-    Examples
-    --------
-
-    Create a logger at the verbosity level, so no debug information is generated
-
-    >>> logger = create_logger()
-    >>> logger.debug("This is a debug message")
-
-    The info and warning message are both plotted
-
-    >>> logger.info("This is a information message")
-      INFO : This is a information message
-    >>> logger.warning("This is a warning message")
-    WARNING : This is a warning message
-
-    Create a logger at the debug level
-
-    >>> logger = create_logger(console_log_level=logging.DEBUG)
-    >>> logger.debug("This is a debug message")
-     DEBUG : This is a debug message
-    >>> logger.info("This is a information message")
-      INFO : This is a information message
-    >>> logger.warning("This is a warning message")
-    WARNING : This is a warning message
-
-    Create a logger at the warning level. All output is suppressed, except for the warnings
-
-    >>> logger = create_logger(console_log_level=logging.WARNING)
-    >>> logger.debug("This is a debug message")
-    >>> logger.info("This is a information message")
-    >>> logger.warning("This is a warning message")
-    WARNING : This is a warning message
-
-    It is also possible to redirect the output to a file. The file name given without an extension,
-    as two file are created: one with the extension .out and one with the extension .err, for the
-    normal user generated out put and system errors output respectively.
-
-    >>> data_dir = os.path.join(os.path.split(__file__)[0], "..", "data")
-    >>> file_name = os.path.join(data_dir, "log_file")
-    >>> logger = create_logger(log_file=file_name,  console_log_level=logging.INFO,
-    ... file_log_level=logging.DEBUG, file_log_format_long=False)
-    >>> logger.debug("This is a debug message")
-    >>> logger.info("This is a information message")
-      INFO : This is a information message
-    >>> logger.warning("This is a warning message")
-    WARNING : This is a warning message
-    >>> print("system normal message")
-    system normal message
-    >>> print("system error message", file=sys.stderr)
-
-    At this point, two files have been generated, log_file.out and log_file.err. The first contains
-    the normal logging output whereas the second contains error message generated by other packages
-    which do not use the logging module. Note that the normal print statement shows up in the
-    console but not in the file, whereas the second print statement to the stderr output does not
-    show on the screen but is written to log_file.err
-
-    To show the contents of the generated files we do
-
-    >>> with open(file_name+".out", "r") as fp:
-    ...   for line in fp.readlines():
-    ...       print(line.strip())
-    DEBUG : This is a debug message
-    INFO : This is a information message
-    WARNING : This is a warning message
-    >>> sys.stderr.flush()  # forces to flush the stderr output buffer to file
-    >>> with open(file_name + ".err", "r") as fp:
-    ...   for line in fp.readlines():
-    ...       print(line.strip())
-    system error message
-
-    References
-    ----------
-    https://docs.python.org/3/library/logging.html#levels
-
-    """
-
-    # start with creating the logger with a DEBUG level
-    logging.basicConfig()
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    logger.handlers = []
-
-    # create a console handle with a console log level which may be higher than the current level
-    ch = logging.StreamHandler(stream=sys.stdout)
-    ch.setLevel(console_log_level)
-
-    fh = None
-
-    # create file handler if a file name is given with more info
-    if log_file is not None:
-        log_file_out = log_file + ".out"
-        fh = logging.FileHandler(log_file_out, mode="w")
-        fh.setLevel(file_log_level)
-
-        if redirect_stderr:
-            error_file = log_file + ".err"
-            sys.stderr = open(error_file, "w")
-
-    formatter_long = logging.Formatter(
-        "[%(asctime)s] %(levelname)8s --- %(message)s " + "(%(filename)s:%(lineno)s)",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-    formatter_normal = logging.Formatter("%(levelname)6s : %(message)s")
-
-    formatter_short = logging.Formatter("%(message)s")
-
-    if console_log_format_clean and console_log_format_long:
-        raise AssertionError(
-            "Can only specify either a long or a short logging format. Not both "
-            "at the same time"
-        )
-
-    # create formatter and add it to the handlers for the console output
-    if console_log_format_long:
-        formatter_cons = formatter_long
-    elif console_log_format_clean:
-        formatter_cons = formatter_short
-    else:
-        formatter_cons = formatter_normal
-
-    ch.setFormatter(formatter_cons)
-
-    if log_file is not None:
-        if file_log_format_long:
-            formatter_file = formatter_long
-        else:
-            formatter_file = formatter_normal
-
-        # create console handler with a higher log level
-        fh.setFormatter(formatter_file)
-
-        # add the handlers to the logger
-        logger.addHandler(fh)
-
-    logger.addHandler(ch)
-    if log_file:
-        logger.addHandler(fh)
-
-    return logger
 
 
 def delete_module(modname, paranoid=None):
@@ -470,7 +257,7 @@ def delete_module(modname, paranoid=None):
 
 
 def get_clean_version(version):
-    """turns the full version string into a clean one without the build
+    r"""turns the full version string into a clean one without the build
 
     Parameters
     ----------
@@ -501,7 +288,7 @@ def get_clean_version(version):
     '4.3.1'
 
     """
-    match = re.search("([.|\d]+)([+]*)(.*)", version)
+    match = re.search(r"([.|\d]+)([+]*)(.*)", version)
     if bool(match):
         version = match.group(1)
     else:
@@ -526,34 +313,32 @@ def read_settings_file(file_name):
     -----
     The file name of the yaml file is searched for in the following order
 
-    1. The current directory where the script is executed. If a full path is given, this will be
-       accepted too.
+    1. The current directory where the script is executed. If a full path is given,
+       this will be accepted too.
     2. The directory where the original script is located.
 
-    In this way, a default settings file can be put in the script directory and the user does not
-    need to copy it except a setting values needs to be changed
+    In this way, a default settings file can be put in the script directory and the user
+    does not need to copy it except a setting values needs to be changed
 
     Raises
     ------
     AssertionError:
-        In case the file can not be found
+        In case the file cannot be found
     """
 
-    logger = get_logger(__name__)
-
     if os.path.exists(file_name):
-        logger.info("Loading configuration file {}".format(file_name))
+        logger.info(f"Loading configuration file {file_name}")
         configuration_file = file_name
     else:
-        logger.info("Loading configuration file from script dir {}".format(__name__))
+        logger.info(f"Loading configuration file from script dir {__name__}")
         configuration_file = os.path.join(
             os.path.split(__file__)[0], os.path.split(file_name)[1]
         )
     try:
-        logger.debug("Trying to read configuration file {}".format(configuration_file))
-        with open(configuration_file, "r") as stream:
-            settings = yaml.load(stream=stream, Loader=yamlordereddictloader.Loader)
-    except IOError as err:
+        logger.debug(f"Trying to read configuration file {configuration_file}")
+        with open(configuration_file) as stream:
+            settings = yaml.load(stream=stream)
+    except OSError as err:
         raise AssertionError(
             "Configuration file can not be found in either current directory of "
             "script directory. Goodbye. {}".format(err)
@@ -563,12 +348,13 @@ def read_settings_file(file_name):
 
 
 def get_python_version_number(version_info):
-    """script to turn the version info as obtained with sys.version_info into a digit number
+    """Script to turn the version info as obtained with sys.version_info into a digit
+    number
 
     Parameters
     ----------
     version_info :
-        return: a string with the current python version as a clear digit, i.e. 3.5.3
+        return: a string with the current python version as a clear digit, i.e., 3.5.3
 
     Returns
     -------
@@ -581,17 +367,18 @@ def get_python_version_number(version_info):
 
     """
 
-    python_version = "{:d}".format(version_info.major)
+    python_version = f"{version_info.major:d}"
     if version_info.minor != "":
-        python_version += ".{:d}".format(version_info.minor)
+        python_version += f".{version_info.minor:d}"
     if version_info.micro != "":
-        python_version += ".{:d}".format(version_info.micro)
+        python_version += f".{version_info.micro:d}"
 
     return python_version
 
 
 def get_regex_pattern(search_pattern):
-    """Routine to turn a string into a regular expression which can be used to match a string
+    """Routine to turn a string into a regular expression which can be used to match a
+    string
 
     Parameters
     ----------
@@ -601,27 +388,27 @@ def get_regex_pattern(search_pattern):
     Returns
     -------
     None or compiled regular expression
-        A regular expression as return by the re.compile fucntion or None in case a invalid regular
-        expression was given
+        A regular expression as return by the re.compile function or None in case a
+        invalid regular expression was given
 
     Notes
     -----
     An empty string or an invalid search_pattern will yield a None return
 
     """
-    regular_expresion = None
+    regular_expression = None
     if search_pattern != "":
         try:
-            regular_expresion = re.compile("{}".format(search_pattern))
+            regular_expression = re.compile(f"{search_pattern}")
         except re.error:
-            regular_expresion = None
-    return regular_expresion
+            regular_expression = None
+    return regular_expression
 
 
 def clear_argument_list(argv):
     """
-    Small utility to remove the \'\\\\r\' character from the last argument of the argv list
-    appearing in cygwin
+    Small utility to remove the \'\\\\r\' character from the last argument of the argv
+    list appearing in cygwin
 
     Parameters
     ----------
@@ -659,7 +446,6 @@ def query_yes_no(question, default_answer="no"):
     str:
         "yes" or "no", depending on the input of the user
     """
-    log = get_logger(__name__)
     valid = {"yes": "yes", "y": "yes", "ye": "yes", "no": "no", "n": "no"}
     if not default_answer:
         prompt = " [y/n] "
@@ -672,7 +458,7 @@ def query_yes_no(question, default_answer="no"):
 
     while 1:
         # sys.stdout.write(question + prompt)
-        log.warning(question + prompt)
+        logger.warning(question + prompt)
         choice = input().lower()
         if default_answer is not None and choice == "":
             return default_answer
@@ -703,20 +489,19 @@ def print_banner(
         the symbol used for the bottom line. Assume same as top if None is given
         (Default value = None)
     side_symbol : str
-        The side symbol. Assume same as top if None is given, except if top is -, then take |
-        (Default value = None)
+        The side symbol. Assume same as top if None is given, except if top is -, then
+        take | (Default value = None)
     width : int
         the width of the banner (Default value = 80)
     no_top_and_bottom : bool
         make a simple print without the top and bottom line (Default value = False)
     to_stdout : bool, optional
-        Print the banner to the standard output of the console instead of the logging system.
-        Defaults to False
+        Print the banner to the standard output of the console instead of the logging
+        system. Defaults to False
 
     Examples
     --------
 
-    >>> logger = create_logger(console_log_format_clean=True)
     >>> print_banner("This is the start of a section")
     <BLANKLINE>
     --------------------------------------------------------------------------------
@@ -726,11 +511,10 @@ def print_banner(
     Notes
     -----
 
-    Unless the option 'to_stdout' is set to True, the banner is printed via the logging system.
-    Therefore, a logger needs to be created first using `create_logger`
+    Unless the option 'to_stdout' is set to True, the banner is printed via the logging
+    system. Therefore, a logger needs to be created first using `create_logger`
 
     """
-    logger = get_logger(__name__)
 
     logger.debug("message debug in print_banner")
 
@@ -746,26 +530,24 @@ def print_banner(
     if not no_top_and_bottom:
         message_string = (
             "{}\n"
-            + "{} ".format(side_symbol)
+            + f"{side_symbol} "
             + "{:"
-            + "{:d}".format(width - 4)
+            + f"{width - 4:d}"
             + "}"
-            + " {}".format(side_symbol)
+            + f" {side_symbol}"
             + "\n{}"
         )
         message = message_string.format(
             top_symbol * width, title, bottom_symbol * width
         )
     else:
-        message_string = (
-            "{} ".format(side_symbol) + "{:" + "{:d}".format(width - 4) + "}"
-        )
+        message_string = f"{side_symbol} " + "{:" + f"{width - 4:d}" + "}"
         message = message_string.format(title)
     if to_stdout:
-        print("\n{}".format(message))
+        print(f"\n{message}")
         sys.stdout.flush()
     else:
-        logger.info("\n{}".format(message))
+        logger.info(f"\n{message}")
 
 
 def move_script_path_to_back_of_search_path(script_file, append_at_the_end=True):
@@ -777,8 +559,8 @@ def move_script_path_to_back_of_search_path(script_file, append_at_the_end=True)
         Name of the script to move
 
     append_at_the_end: bool, optional, default=True
-        Append the name of the script to the end. In case this flag is false, the script file is
-        prepended to the path
+        Append the name of the script to the end. In case this flag is false, the script
+        file is added to the beginning of the path
 
     Returns
     -------
@@ -812,7 +594,7 @@ def move_script_path_to_back_of_search_path(script_file, append_at_the_end=True)
 
 
 def read_value_from_dict_if_valid(dictionary, key, default_value=None):
-    """small routine to read a value from a dictionary. If the value is not set, just return the
+    """Read a value from a dictionary. If the value is not set, just return the
     default value
 
     Parameters
@@ -839,7 +621,8 @@ def read_value_from_dict_if_valid(dictionary, key, default_value=None):
 
 
 def set_value_if_valid(value, new_value):
-    """small routine to set a value on if it is not none. Otherwise the original value is taken
+    """small routine to set a value on if it is not none.
+    Otherwise, the original value is taken
 
     Parameters
     ----------
@@ -872,21 +655,23 @@ def compare_objects(obj1, obj2, counter=0, max_recursion_depth=4):
     obj2: class
         second object
     counter: int
-        Current recursion depth. Keeps track of how many time we have recursively called this
-        function
+        Current recursion depth. Keeps track of how many time we have recursively called
+        this function
     max_recursion_depth: int
         Maximum depth to which we are comparing the objects.
 
 
     Notes
     -----
-    * This function compares all the attributes of two object to see if their values are the same
-    * An attribute field may be another object which we also want to compare with the same
-      attribute of the other object. This is done by recursively calling this function again.
-    * Due to the recursive call mechanism we may end up in a infinite loop. To prevent this,
-      a maximum recursion depth can be given.
-    * The test function *test_sequence_tool* of the *sequence_tool_utils* module uses this
-      function to compare to *SequenceToolSummary* objects
+    * This function compares all the attributes of two objects to see if their values
+      are the same
+    * An attribute field may be another object which we also want to compare with the
+      same attribute of the other object. This is done by recursively calling this
+      function again.
+    * Due to the recursive call mechanism we may end up in a infinite loop. To prevent
+      this, a maximum recursion depth can be given.
+    * The test function *test_sequence_tool* of the *sequence_tool_utils* module uses
+      this function to compare to *SequenceToolSummary* objects
 
     Raises
     ------
@@ -921,13 +706,13 @@ def set_default_dimension(
     Parameters
     ----------
     parse_value: ndarray or str or float
-        Value with optional a dimension written in the form of a str. Can be an array or list of
-        strings as well
+        Value with optional a dimension written in the form of a str. Can be an array or
+        list of strings as well
     default_dimension: str
         Required default dimension
     force_default_units: bool
-        If true the only allowed dimension is the default dimension. Raise an error in case this is
-        not the case. Default = False
+        If true the only allowed dimension is the default dimension. Raise an error in
+        case this is not the case. Default = False
 
     Returns
     -------
@@ -940,39 +725,44 @@ def set_default_dimension(
     AssertionError
         In case the dimension of the *parse_value* argument is not not but:
 
-        1. Its dimensionality is not the same as the dimensionality of the *default_dimension*
+        1. Its dimensionality is not the same as the dimensionality of the
+           *default_dimension*
         2. Its units is not the same as the unit of the *default_dimension* and the
            *force_default_units* flag is set to *True*
 
     Notes
     -----
-    * This function is a add-on to the *pint* module, a package to define, operate and manipulate
-      physical quantities: https://pypi.python.org/pypi/Pint.
-    * This function is used to add a dimension to a value which is parsed from a text file.
-    * It is checked if the value given in the text file has dimension already, for example that
-      it was given as "1.0 m/s".
-    * If a dimension was given already: check if the dimensionality (in this case: Length/Time)
+    * This function is a add-on to the *pint* module, a package to define, operate and
+      manipulate physical quantities: https://pypi.python.org/pypi/Pint.
+    * This function is used to add a dimension to a value which is parsed from a text
+      file.
+    * It is checked if the value given in the text file has dimension already, for
+      example that it was given as "1.0 m/s".
+    * If a dimension was given already: check if the dimensionality (in this case:
+      Length/Time)
       is the same as the dimensionality of the *default_dimension* input argument.
-    * In case the input value does not have an explicit dimension, the dimension given by
-      *default_dimension* is added to the value.
+    * In case the input value does not have an explicit dimension, the dimension given
+      by *default_dimension* is added to the value.
     * This function works on both scalar and list values
 
     Examples
     --------
 
-    Assume we want to read input values from a text file as plain numbers and we want to add a
-    default dimension of *meter* to it in case the value do not have an explicit dimension yet.
-    Just do
+    Assume we want to read input values from a text file as plain numbers and we want
+    to add a default dimension of *meter* to it in case the value do not have an
+    explicit dimension yet. Just do:
 
-    >>> value_without_dimension = 1.0  # this is the values as we read from the text file
+    >>> value_without_dimension = 1.0  # value as we read from the text file
     >>> value_with_dimension = set_default_dimension(value_without_dimension, "meter")
     >>> print(value_with_dimension)
     1.0 meter
 
-    The variable *value_with_dimension* is now a pint quantity which carries the dimension meter.
+    The variable *value_with_dimension* is now a pint quantity which carries the
+    dimension meter.
 
-    In case the input variable already has a dimension, we should also be able to use this
-    *function*. The only requirement is that the dimensionality is the same. So this should work
+    In case the input variable already has a dimension, we should also be able to use
+    this *function*. The only requirement is that the dimensionality is the same.
+    So this should work:
 
     >>> value_with_dimension = set_default_dimension("2.5 meter", "meter")
     >>> print(value_with_dimension)
@@ -984,8 +774,8 @@ def set_default_dimension(
     >>> print(value_with_dimension)
     5.0 millimeter
 
-    But this fails as the dimensionality of the input argument is not corresponding with the
-    dimensionality of the default dimension
+    But this fails as the dimensionality of the input argument is not corresponding with
+    the dimensionality of the default dimension
 
     >>> try:
     ...    value_with_dimension = set_default_dimension("5.0 mm", "second")
@@ -995,15 +785,16 @@ def set_default_dimension(
 
     This function should also work for arrays and list
 
-    >>> values_without_dimension = np.linspace(0, 1, num=5, endpoint=True)
-    >>> values_with_dimension = set_default_dimension(values_without_dimension, "meter/second^2")
+    >>> values_without_dimension = np.linspace(0, 1, num=5)
+    >>> values_with_dimension = set_default_dimension(values_without_dimension,
+    ...                                               "meter/second^2")
     >>> print(values_with_dimension)
     [ 0.    0.25  0.5   0.75  1.  ] meter / second ** 2
 
     Notes
     -----
-    * Hz are not converted to rad/s as expected. Therefore, do not try to use this to convert
-      Hz -> rad/s
+    * Hz are not converted to rad/s as expected. Therefore, do not try to use this to
+      convert Hz -> rad/s
     * If the input argument *parse_val* is None, a None is returned as output as well
 
     """
@@ -1018,24 +809,25 @@ def set_default_dimension(
         # in case no dimensions are given with the parse_value argument, impose them
 
         if isinstance(parse_value, (list, tuple, np.ndarray)):
-            # to properly deal with arrays and list first check if we have one
+            # To properly deal with arrays and lists, first check if we have one
             v = Q_(parse_value[0])
-            # if this is allowed we have and array. Check the value and dimension of the first
-            # element
+            # If this is allowed, we have and array. Check the value and dimension of
+            # the first element
             if (
                 v.dimensionality == dimensionless
                 and v.units == dimensionless_unit_val.units
             ):
                 if not isinstance(parse_value[0], type(dimensionless_unit_val)):
-                    # there are no dimensions. Just convert the array, add the dimensions later
+                    # There are no dimensions. Convert the array, add the dimensions
+                    # later
                     ret_val = Q_(parse_value)
                 else:
-                    # we have added the quantity to the parse_value already. Just copy it
+                    # We have added the quantity to the parse_value already. Copy it
                     ret_val = parse_value
             else:
-                # The element have a dimension, to convert the array in a bare array without
-                # dimensions and copy the dimension type to the default.  Then we can just do the
-                # conversion below
+                # The elements have a dimension, so convert the array in a bare array
+                # without dimensions and copy the dimension type to the default.
+                # Then we can just do the conversion below
                 parse_value = np.array([Q_(x).magnitude for x in parse_value])
                 ret_val = Q_(parse_value)
                 if (
@@ -1043,8 +835,9 @@ def set_default_dimension(
                     and v.dimensionality != def_unit_val.dimensionality
                 ):
                     raise AssertionError(
-                        "The first value of the array given has a dimension with a different "
-                        "dimensionality as the default dimension. Found {}. Expected {}"
+                        "The first value of the array given has a dimension with a "
+                        "different dimensionality as the default dimension. "
+                        "Found {}. Expected {}"
                         "".format(v.dimensionality, def_unit_val.dimensionality)
                     )
 
@@ -1053,7 +846,7 @@ def set_default_dimension(
             # the parse_value is not yet a quantity objects
             ret_val = Q_(parse_value)
         else:
-            # the parser value is a quantity already. Just copy it
+            # The parser value is a quantity already. Copy it
             ret_val = parse_value
 
         if (
@@ -1071,8 +864,8 @@ def set_default_dimension(
             # check if the dimensionality is the same as the def_units
             if ret_val.dimensionality != def_unit_val.dimensionality:
                 raise AssertionError(
-                    "Value given has a dimension with a different dimensionality as the default "
-                    "dimension\nFound {}. Expected {}".format(
+                    "Value given has a dimension with a different dimensionality as "
+                    "the default dimension\nFound {}. Expected {}".format(
                         ret_val.dimensionality, def_unit_val.dimensionality
                     )
                 )
@@ -1081,9 +874,12 @@ def set_default_dimension(
         if force_default_units:
             if ret_val.units != def_unit_val.units:
                 raise AssertionError(
-                    "The dimensions given to the value do not match the default units. \n"
-                    "Found {}. Expected {}\nPlease fix or set *only_default_units_allowed* "
-                    "to False".format(ret_val.units, def_unit_val.units)
+                    "The dimensions given to the value do not match the default "
+                    "units. \n"
+                    "Found {}. Expected {}\nPlease fix or set "
+                    "*only_default_units_allowed* to False".format(
+                        ret_val.units, def_unit_val.units
+                    )
                 )
     else:
         # in case a none value is given as input just return none as output
@@ -1094,24 +890,25 @@ def set_default_dimension(
 
 def get_value_magnitude(value, convert_to_base_units=True):
     """
-    Get the magnitude of value with *Pint* dimension in terms of its base units or just return a
-    float if *value* does not have a dimension
+    Get the magnitude of value with *Pint* dimension in terms of its base units or
+    return a float if *value* does not have a dimension
 
     Parameters
     ----------
     value: Quantity or float or None
-        A value with a Pint dimension or a normal float. In both cases, the value without
-        dimension is returned
+        A value with a Pint dimension or a normal float. In both cases, the value
+        without dimension is returned
     convert_to_base_units: bool, optional
-        Before turning the value into a magnitude first turn the quantity into its SI base units.
-        Default = True
+        Before turning the value into a magnitude first turn the quantity into its SI
+        base units. Default = True
 
     Returns
     -------
     float or None
-        Magnitude of the value in case a Pint Quantity was added to the input or just the value
-        itself. If *convert_to_base_units* was set to True the value is first converted to its SI
-        base units
+        Magnitude of the value in case a Pint Quantity was added to the input or just
+        the value itself.
+        If *convert_to_base_units* was set to True the value is first converted to its
+        SI base units
 
     Examples
     --------
@@ -1127,15 +924,15 @@ def get_value_magnitude(value, convert_to_base_units=True):
     >>> print("Velocity without dimension is: {}".format(velocity_mag))
     Velocity without dimension is: 2.5
 
-    In case the input argument of the *get_value_magnitude* is a float and does not have a
-    dimension, the value itself is returned
+    In case the input argument of the *get_value_magnitude* is a float and does not
+    have a dimension, the value itself is returned
 
     >>> velocity_mag2 = get_value_magnitude(velocity_mag)
     >>> print("Velocity without dimension is: {}".format(velocity_mag2))
     Velocity without dimension is: 2.5
 
-    In case we have a dimension in none SI units, the value  is by default first converted to its
-    SI base units.
+    In case we have a dimension in none SI units, the value  is by default first
+    converted to its SI base units.
 
     >>> velocity_knots = Q_("1 knot")
     >>> velocity_mag = get_value_magnitude(velocity_knots)
@@ -1143,8 +940,8 @@ def get_value_magnitude(value, convert_to_base_units=True):
     ...       "".format(velocity_knots, velocity_mag))
     Velocity 1 knot is converted to its magnitude in m/s: 0.51
 
-    In case that the *convert_to_base_units* flag is False we just get the magnitude in the same
-    units as the input argument
+    In case that the *convert_to_base_units* flag is False we just get the magnitude in
+    the same units as the input argument
 
     >>> velocity_knots = Q_("2.5 knot")
     >>> velocity_mag = get_value_magnitude(velocity_knots, convert_to_base_units=False)
@@ -1154,9 +951,9 @@ def get_value_magnitude(value, convert_to_base_units=True):
 
     Notes
     -----
-    * This function is used inside other functions in which it is not know before hand if an input
-      argument is passed with or without a Pint dimension and we only are interested in the
-      magnitude of the value. Use this function to get the magnitude
+    * This function is used inside other functions in which it is not know before hand
+      if an input argument is passed with or without a Pint dimension and we only are
+      interested in the magnitude of the value. Use this function to get the magnitude
     """
 
     try:
@@ -1194,25 +991,26 @@ def get_time_stamp_from_string(
     Examples
     --------
 
-    The  date time in the file 'AMSBALDER_160929T000000' is  29 sep 2016 and does not have a
-    time zone specification. The returned time stamp does also not have a time zone
+    The date time in the file 'AMSBALDER_160929T000000' is  29 sep 2016 and does not
+    have a time zone specification. The returned time stamp does also not have a time
+    zone
 
     >>> file_name="AMSBALDER_160929T000000"
     >>> time_stamp =get_time_stamp_from_string(string_with_date_time=file_name)
     >>> print("File name {} has time stamp {}".format(file_name, time_stamp))
     File name AMSBALDER_160929T000000 has time stamp 2016-09-29 00:00:00
 
-    We can also force to add a time zone. The Etc/GMT-2 time zone is UTC + 2 time zone which is
-    the central europe summer time (CEST) or the Europe/Amsterdam Summer time.
+    We can also force to add a time zone. The Etc/GMT-2 time zone is UTC + 2 time zone
+    which is the central europe summer time (CEST) or the Europe/Amsterdam Summer time.
 
     >>> time_stamp =get_time_stamp_from_string(string_with_date_time=file_name,
     ...                                        timezone="Etc/GMT-2")
     >>> print("File name {} has time stamp {}".format(file_name, time_stamp))
     File name AMSBALDER_160929T000000 has time stamp 2016-09-29 00:00:00+02:00
 
-    This time we assume the file name already contains a time zone, 2 hours + UTC. Since we
-    already have a time zone, the *timezone* option can only convert the date time to the specified
-    time zone.
+    This time we assume the file name already contains a time zone, 2 hours + UTC.
+    Since we already have a time zone, the *timezone* option can only convert the date
+    time to the specified time zone.
 
     >>> file_name="AMSBALDER_160929T000000+02"
     >>> time_stamp =get_time_stamp_from_string(string_with_date_time=file_name,
@@ -1220,8 +1018,8 @@ def get_time_stamp_from_string(
     >>> print("File name {} has time stamp {}".format(file_name, time_stamp))
     File name AMSBALDER_160929T000000+02 has time stamp 2016-09-29 00:00:00+02:00
 
-    In case the time zone given by the *timezone* options differs with the time zone in the file
-    name, the time zone is converted
+    In case the time zone given by the *timezone* options differs with the time zone in
+    the file name, the time zone is converted
 
     >>> file_name="AMSBALDER_160929T000000+00"
     >>> time_stamp =get_time_stamp_from_string(string_with_date_time=file_name,
@@ -1249,7 +1047,7 @@ def get_time_stamp_from_string(
     return file_time_stamp
 
 
-class PackageInfo(object):
+class PackageInfo:
     """
     A class to analyse the version properties of this package
 
@@ -1285,7 +1083,7 @@ class PackageInfo(object):
         except ImportError:
             print("Could not load _version_frozen. All stay None")
         else:
-            print("here with bundle {}".format(_version_frozen))
+            print(f"here with bundle {_version_frozen}")
             self.bundle_dir = sys._MEIPASS
             self.package_version = _version_frozen.VERSIONTAG
             self.git_sha = _version_frozen.GIT_SHA
@@ -1305,7 +1103,7 @@ class PackageInfo(object):
         self.build_date = pd.to_datetime("now").strftime("%Y%m%d")
 
 
-class ConditionalDecorator(object):
+class ConditionalDecorator:
     """
     Add a decorator to a function only if the condition is True
 

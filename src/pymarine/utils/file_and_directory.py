@@ -1,23 +1,26 @@
 """
 Collection of functions dealing with the system file and directories
 """
+
 import errno
+import logging
 import os
 
 import pandas as pd
 
-from hmc_utils.misc import (
-    get_regex_pattern,
-    get_logger,
+from pymarine.utils.misc import (
     clear_path,
+    get_regex_pattern,
     get_time_stamp_from_string,
 )
 
 MSG_FORMAT = "{:30s} : {}"
 
+logger = logging.getLogger(__name__)
+
 
 def get_path_depth(path_name):
-    """
+    r"""
     Get the depth of a path or file name
 
     Parameters
@@ -53,8 +56,8 @@ def get_path_depth(path_name):
     while current_path not in ("", "."):
         current_path = os.path.split(current_path)[0]
         if current_path == previous_path:
-            # for a full path name we end at the root 'C:\'. Detect that be comparing with the
-            # previous round
+            # For a full path name we end at the root 'C:\'.
+            # Detect that by comparing with the previous round
             break
         previous_path = current_path
         depth += 1
@@ -78,81 +81,88 @@ def scan_base_directory(
     max_depth=None,
     sort_file_base_names=False,
 ):
-    """Recursively scan the directory `walk_dir` and get all files underneath obeying the search
-    strings and/or date/time ranges
+    """Recursively scan the directory `walk_dir` and get all files underneath obeying
+    the search strings and/or date/time ranges
 
     Parameters
     ----------
     walk_dir : str, optional
         The base directory to start the import. Default = "."
     supplied_file_list: list, optional
-        In case walk dir is not given we can explicitly pass a file list to analyse. Default = None
+        In case walk dir is not given we can explicitly pass a file list to analyze.
+        Default = None
     dir_has_string_pattern : str, optional
-        Requires the directory name to have this pattern (Default value = ""). This selection is
-        only made on the first directory level below the walk_dir
+        Requires the directory name to have this pattern (Default value = "").
+        This selection is only made on the first directory level below the walk_dir
     dir_has_not_string_pattern : str, optional
-        Requires the directory name NOT to have this pattern (Default value = ""). This selection is
-        only made on the first directory level below the walk_dir
+        Requires the directory name NOT to have this pattern (Default value = "").
+        This selection is only made on the first directory level below the walk_dir
     file_has_string_pattern : str, optional
-        Requires the file name to have this pattern (Default value = "", i.e. matches all)
+        Requires the file name to have this pattern (Default value = "", i.e.,
+        matches all)
     file_has_not_string_pattern : str, optional
         Requires the file name NOT to have this pattern (Default value = "")
     extension : str or None, optional
         Extension of the file to match. If None, also matches. Default = None
     max_depth : int, optional
-        Sets a maximum depth to which the search is carried out. Default = None, which does not
-        limit the search depth. For deep file structures setting a limit to the search depth speeds
+        Sets a maximum depth to which the search is carried out. Default = None, which
+        does not limit the search depth. For deep file structures setting a limit to the
+        search depth speeds
         up the search.
     sort_file_base_names: bool, option
-        If True, sort the resulting file list alphabetically based on the file base name.
-        Default = False
+        If True, sort the resulting file list alphabetically based on the file base
+        name. Default = False
     start_date_time: DateTime or None, optional
-        If given, get the date time from the current file name and only add the files with a
-        date/time equal or large the *start_date_time*. Default is None
+        If given, get the date time from the current file name and only add the files
+        with a date/time equal or large the *start_date_time*. Default is None
     end_date_time: DateTime or None, optional
-        If given, get the date time from the current file name and only add the files with a
-        date/time smaller than the *end_date_time*. Default is None
+        If given, get the date time from the current file name and only add the files
+        with a date/time smaller than the *end_date_time*. Default is None
     time_zone:str or None, optional
-        If given add this time zone to the file stamp. The start and end time should also have a
-        time zone
+        If given add this time zone to the file stamp. The start and end time should
+        also have a time zone
     time_stamp_year_first: bool, optional
-        Passed to the datetime parser. If true, the year is first in the date/time string.
-        Default = True
+        Passed to the datetime parser. If true, the year is first in the date/time
+        string. Default = True
     time_stamp_day_first: bool, optional
-        Passed to the datetime parser. If true, the day is first in the date/time string.
-        Default = False
+        Passed to the datetime parser. If true, the day is first in the date/time
+        string. Default = False
 
     Returns
     -------
     list
-        All the  file names found below the input directory `walk_dir` obeying all the search
-        strings
+        All the file names found below the input directory `walk_dir` obeying all the
+        search strings
 
     Examples
     --------
 
-    Find all the python files under the share directory in the Anaconda installation folder
+    Find all the python files under the share directory in the Anaconda installation
+    folder
 
     >>> scan_dir = "C:\\Anaconda\\share"
     >>> file_list = scan_base_directory(scan_dir, extension='.py')
 
-    Find all the python files under the share directory in the Anaconda installation folder
-    belonging to the pywafo directory
+    Find all the python files under the share directory in the Anaconda installation
+    folder belonging to the pywafo directory
 
-    >>> file_list = scan_base_directory(scan_dir, extension='.py', dir_has_string_pattern="wafo")
+    >>> file_list = scan_base_directory(scan_dir, extension='.py',
+    ...                                 dir_has_string_pattern="wafo")
 
-    Note that wafo matches on the directory 'pywafo', which is the first directory level below the
-    scan directory. However, if we would match on '^wafo' the returned list would be empty as the
-    directory has to *start* with wafo.
+    Note that wafo matches on the directory 'pywafo', which is the first directory level
+    below the scan directory. However, if we would match on '^wafo' the returned list
+    would be empty as the directory has to *start* with wafo.
 
-    In order to get all the files with "test" in the name with a directory depth smaller than 3 do
+    To get all the files with "test" in the name with a directory depth smaller than
+    three do:
 
-    >>> file_list = scan_base_directory(scan_dir, extension='.py', dir_has_string_pattern="wafo",
+    >>> file_list = scan_base_directory(scan_dir, extension='.py',
+    ...                                 dir_has_string_pattern="wafo",
     ...                                 file_has_string_pattern="test", max_depth=3)
 
 
-    Test the date/time boundaries. First create a file list from 28 sep 2017 00:00 to 5:00 with a
-    hour interval and convert it to a string list
+    Test the date/time boundaries. First create a file list from 28 sep 2017 00:00 to
+    5:00 with a hour interval and convert it to a string list
 
     >>> file_names = ["AMS_{}.mdf".format(dt.strftime("%y%m%dT%H%M%S")) for dt in
     ...    pd.date_range("20170928T000000", "20170928T030000", freq="30min")]
@@ -177,38 +187,36 @@ def scan_base_directory(
     AMS_170928T013000.mdf
     AMS_170928T020000.mdf
 
-    Note that the selected range run from 1 am until 2 am; the end_date_time of 2.30 am is not
-    included
+    Note that the selected range run from 1 am until 2 am; the end_date_time of 2.30 am
+    is not included
 
     """
 
-    log = get_logger(__name__)
-
-    # get the regular expression for the has_pattern and has_not_pattern of the files and
-    # directories
+    # get the regular expression for the has_pattern and has_not_pattern of the files
+    # and directories
     file_has_string = get_regex_pattern(file_has_string_pattern)
     file_has_not_string = get_regex_pattern(file_has_not_string_pattern)
     dir_has_string = get_regex_pattern(dir_has_string_pattern)
     dir_has_not_string = get_regex_pattern(dir_has_not_string_pattern)
-    log.debug(MSG_FORMAT.format("file_has_string", file_has_string))
-    log.debug(MSG_FORMAT.format("file_has_not_string", file_has_not_string))
-    log.debug(MSG_FORMAT.format("dir_has_string", dir_has_string))
-    log.debug(MSG_FORMAT.format("dir_has_not_string", dir_has_not_string))
+    logger.debug(MSG_FORMAT.format("file_has_string", file_has_string))
+    logger.debug(MSG_FORMAT.format("file_has_not_string", file_has_not_string))
+    logger.debug(MSG_FORMAT.format("dir_has_string", dir_has_string))
+    logger.debug(MSG_FORMAT.format("dir_has_not_string", dir_has_not_string))
 
     # use os.walk to recursively walk over all the file and directories
     top_directory = True
     file_list = list()
-    log.debug("Scanning directory {}".format(walk_dir))
-    for root, subdirs, files in os.walk(walk_dir, topdown=True):
+    logger.debug(f"Scanning directory {walk_dir}")
+    for root, subdirs, files in os.walk(walk_dir):
         if supplied_file_list is not None:
             root = "."
             subdirs[:] = list()
             files = supplied_file_list
 
-        log.debug("root={}  sub={} files={}".format(root, subdirs, files))
-        log.debug(MSG_FORMAT.format("root", root))
-        log.debug(MSG_FORMAT.format("sub dirs", subdirs))
-        log.debug(MSG_FORMAT.format("files", files))
+        logger.debug(f"root={root}  sub={subdirs} files={files}")
+        logger.debug(MSG_FORMAT.format("root", root))
+        logger.debug(MSG_FORMAT.format("sub dirs", subdirs))
+        logger.debug(MSG_FORMAT.format("files", files))
         # get the relative path towards the top directory (walk_dir)
         relative_path = os.path.relpath(root, walk_dir)
 
@@ -219,8 +227,8 @@ def scan_base_directory(
         else:
             top_directory = False
 
-        # base on the first directory list we are going to make selection of directories to
-        # process
+        # Base on the first directory list we are going to make a choice of directories
+        # to process
         if top_directory:
             include_dirs = list()
             for subdir in subdirs:
@@ -232,9 +240,10 @@ def scan_base_directory(
                         add_dir = False
                 if add_dir:
                     include_dirs.append(subdir)
-                # overrule the subdirectory list of os.walk:
-                # http://stackoverflow.com/questions/19859840/excluding-directories-in-os-walk
-                log.debug("Overruling subdirs with {}".format(include_dirs))
+                # Overrule the subdirectory list of os.walk:
+                # http://stackoverflow.com/questions/19859840/
+                #   excluding-directories-in-os-walk
+                logger.debug(f"Overruling subdirs with {include_dirs}")
                 subdirs[:] = include_dirs
 
         for filename in files:
@@ -243,25 +252,26 @@ def scan_base_directory(
                 add_file = False
 
                 if file_has_string is None or bool(file_has_string.search(filebase)):
-                    # if has_string is none, the search pattern was either empty or invalid (which
-                    # happens during typing the regex in the edit_box). In this case, always add the
-                    # file. If not none, filter on the regex, so only add the file if the search
-                    # pattern is in the filename
+                    # if has_string is none, the search pattern was either empty or
+                    # invalid (which happens during typing the regex in the edit_box).
+                    # In this case, always add the file.
+                    # If not none, filter on the regex, so only add the file if the
+                    # search pattern is in the filename
                     add_file = True
 
-                # do not add the file in case the has_not string edit has been set (!="") and if the
-                # file contains the pattern
+                # Do not add the file in case the has_not string edit has been set
+                # (!="") and if the file contains the pattern
                 if add_file and file_has_not_string is not None:
                     if bool(file_has_not_string.search(filebase)):
-                        # in case we want to exclude the file, the has_not search pattern must be
-                        # valid so may not be None
+                        # in case we want to exclude the file, the has_not search
+                        # pattern must be valid so may not be None
                         add_file = False
 
                 if add_file and (
                     start_date_time is not None or end_date_time is not None
                 ):
-                    # we have supplied a start time or a end time. See if we can get a date time
-                    # from the file name
+                    # We have supplied a start time or a end time. See if we can get a
+                    # date time from the file name
                     file_time_stamp = get_time_stamp_from_string(
                         string_with_date_time=filebase,
                         yearfirst=time_stamp_year_first,
@@ -298,8 +308,8 @@ def scan_base_directory(
                                 add_file = False
 
                 if dir_has_string is not None and top_directory:
-                    # in case we have specified a directory name with a string search, exclude the
-                    # top directory
+                    # in case we have specified a directory name with a string search,
+                    # exclude the top directory
                     add_file = False
 
                 if max_depth is not None and depth > max_depth:
@@ -310,11 +320,11 @@ def scan_base_directory(
 
                 # get the path to the stl relative to the selected scan directory
                 if add_file:
-                    log.debug("Adding file {}".format(filebase))
+                    logger.debug(f"Adding file {filebase}")
                     file_list.append(clear_path(file_name_to_add + ext))
 
-    # sort on the file name. First split the file base from the path, because if the file are in
-    # different directories, the first file is not necessarily the oldest
+    # Sort on the file name. First split the file base from the path, because if the
+    # files are in different directories, the first file is not necessarily the oldest
     if sort_file_base_names:
         df = pd.DataFrame(
             data=file_list,
@@ -337,21 +347,22 @@ def make_directory(directory):
 
     Notes
     -----
-    This function is used to create directories without checking if it already exist. If the
-    directory already exists, we can silently continue.
+    This function is used to create directories without checking if it already exists.
+    If the directory already exists, we can silently continue.
 
     Raises
     ------
     OSError
-        The OSError is only raised if it is not an `EEXIST` error. This implies that the creation
-        of the directory failed due to another reason than the directory already being present.
-        It could be that the file system is full or that we may not have write permission
+        The OSError is only raised if it is not an `EEXIST` error. This implies that the
+         creation of the directory failed due to another reason then the directory
+         already being present.
+         It could be that the file system is full or that we may not have write
+         permission
 
     """
-    logger = get_logger(__name__)
     try:
         os.makedirs(directory)
-        logger.debug("Created directory : {}".format(directory))
+        logger.debug(f"Created directory : {directory}")
     except OSError as exc:
         # an OSError was raised, see what is the cause
         if exc.errno == errno.EEXIST and os.path.isdir(directory):

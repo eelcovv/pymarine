@@ -1,20 +1,18 @@
+colorcet
+fastkml
+h5py
+latloncalc
+matplotlib
+netCDF4
+numpy
+pandas
+pint
+python-dateutil
+scipy
+seaborn
 # Requirements file for ReadTheDocs, check .readthedocs.yml.
 # To build the module reference correctly, make sure every external package
 # under `install_requires` in `setup.cfg` is also listed here!
 sphinx>=3.2.1
 sphinx_rtd_theme
-python-dateutil
-fastkml
-numpy
-pandas
-pint
-colorcet
-latloncalc
-h5py
-netCDF4
-scipy
 statsmodels
-matplotlib
-seaborn
-importlib-metadata
-python_version<"3.8"
