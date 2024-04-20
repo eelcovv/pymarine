@@ -304,7 +304,6 @@ class PlotProperties:
         self.save_data = False
 
 
-# @profile
 def _energy_deficit(k, k0, E, Hs, Tp, gamma, spectral_version, spectrum_type, sigma):
     """
     Helper function for fsolve to calculate the integral of the spectrum between k0 and
@@ -621,7 +620,6 @@ class Wave2D:
         )
         self.kk = np.sqrt(self.k_cartesian_mesh[0] ** 2 + self.k_cartesian_mesh[1] ** 2)
 
-    # @profile
     def update_x_k_theta_sample_space(self):
         self.theta_points = np.linspace(
             self.theta_min, self.theta_max, self.n_theta_nodes
@@ -731,7 +729,6 @@ class Wave2D:
             )
             self.update_phase = False
 
-    # @profile
     def calculate_spectral_components(self):
         """
         Calculate the 2D wave density function from the current k-array and spreading
@@ -792,14 +789,12 @@ class Wave2D:
             # calculate the omega values belong to the wave vectors
             self.calculate_omega_dispersion()
 
-    # @profile
     def calculate_omega_dispersion(self):
         # Calculate the omega frequency belonging to the wave vectors according to the
         # deep water dispersion relation.
         self.omega_dispersion = np.sqrt(g0 * abs(self.kk)) * self.omega_sign
         self.delta_omega = np.diff(self.omega_dispersion)
 
-    # @profile
     def calculate_wave_surface(self):
         if not self.wave1D.wave_construction == "FFT":
             # For the DFT directly calculate the wave field from the spectral components
@@ -818,7 +813,6 @@ class Wave2D:
 
         logger.debug(f"H_s of 2D surface {4 * np.std(self.amplitude)}  ")
 
-    # @profile
     def dft_complex_amplitudes(self, S_tilde, omega, time):
         """Calculate DFT of complex amplitudes at time 'time'
 
@@ -858,7 +852,6 @@ class Wave2D:
                 )
         return np.real(dft)
 
-    # @profile
     def fft_amplitude(self, S_tilde, omega, time):
         """
         Calculate Fourier transform of S using the FFT
@@ -883,7 +876,6 @@ class Wave2D:
         # k=0 S(k)=S^*(-k) to be sure, take the real value only
         return np.real(ampl)
 
-    # @profile
     def export_complex_amplitudes(self, filename, exportAsHD5=True):
         """Export the calculated complex amplitudes to HDF 5 file
 
@@ -2459,7 +2451,6 @@ class Wave1D:
                 "".format(mode)
             )
 
-    # @profile
     def update_x_k_t_sample_space(self):
         """
         After a change of number of x-points or wave vector nodes k has been made, call
@@ -2520,7 +2511,6 @@ class Wave1D:
 
         self.delta_t = self.t_length / self.nt_samples
 
-    # @profile
     def calculate_omega_dispersion(self):
         """
         Calculate the omega frequency belonging to the wave vectors according to the
@@ -2534,7 +2524,6 @@ class Wave1D:
         delta_omega = np.diff(self.omega_dispersion)
         self.delta_omega = np.append(delta_omega, [delta_omega[-1]])
 
-    # @profile
     def calculate_spectra_modulus(self):
         """
         This routine calculates the Spectrum in omega and k domain. The spectrum can
@@ -2773,7 +2762,6 @@ class Wave1D:
                 * self.xpoints.reshape((1, self.xpoints.size))
             )
 
-    # @profile
     def calculate_wave_surface(self):
         """
         Calculate the wave surface for current time using either DFT or FFT
@@ -2823,7 +2811,6 @@ class Wave1D:
 
         logger.debug(f"H_s of 1D surface {4 * np.std(self.amplitude)} ")
 
-    # @profile
     @staticmethod
     def dft_complex_amplitudes(S_tilde, exp_kx, omega, time):
         """
@@ -2858,7 +2845,6 @@ class Wave1D:
         dft = np.dot(M, exp_kx)
         return np.real(dft)
 
-    # @profile
     @staticmethod
     def fft_amplitude(S_tilde, omega, time):
         """Calculate the amplitude at time using the FFT
