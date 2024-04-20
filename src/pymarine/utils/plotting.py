@@ -22,7 +22,7 @@ c_sim = dict(
 
 def analyse_annotations(annotation):
     """Analyze the string `annotation` which compactly sets the properties of a label
-    string such as position, size and color.
+    string such as position, size, and color.
 
     Parameters
     ----------
@@ -37,7 +37,7 @@ def analyse_annotations(annotation):
 
     Notes
     -----
-    * The annotation string can be just given a a label. This label optionally can be
+    * The annotation string can be just given as a label. This label optionally can be
       extended with a '@' sign to include more information, like the location (xp,
      yp), the size with s10, the color with c and the axis with a and a integer
 
