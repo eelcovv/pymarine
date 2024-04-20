@@ -480,7 +480,7 @@ def spectrum_jonswap(omega, Hs=1.0, Tp=10.0, gamma=3.3, spectral_version="dnv"):
     The coefficient :math:`a_p` for the :math:`A_g` scaling factor in
     spectral_version="sim" are given as
 
-    ============ ===== ====== ===== ======= ===== =======
+    ============ ===== ====== ===== ====== ====== =======
     Index p      0     1      2     3      4      5
     ============ ===== ====== ===== ====== ====== =======
     :math:`a_p`  0.600 -0.214 0.084 -0.036 0.0385 -0.0247
