@@ -157,11 +157,11 @@ directional distribution :math:`D(\\theta)` as
 
 where for :math:`S(k)` we can either take a Jonswap or a Gauss distribution as
 implemented in the *wave_spectra* module in *spectrum_jonswap* and *spectrum_gauss*.
-Since we are working in the wave vector domain :math:`k`,  we must first transform the
-spectrum from :math:`\\omega` to :math:`k` space, just as described at the 1D wave
-theory. For directional distribution the *spreading_function* is recommended.
+Since we are working in the wave vector domain :math:`k`, we must first transform the
+spectrum from :math:`\\omega` to :math:`k` space, just as described in the 1D wave
+theory. For directional distribution, the *spreading_function* is recommended.
 
-The *DFTpolar*  implementation constructs the complex amplitudes by multiplying the
+The *DFTpolar* implementation constructs the complex amplitudes by multiplying the
 spectral density :math:`E_{k, \\theta}` with its bin width :math:`dk d\\theta`:
 
 .. math ::
