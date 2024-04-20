@@ -1,6 +1,7 @@
 """
 Some numerical utilities used in other hmc modules
 """
+
 import re
 
 import numpy as np
@@ -8,7 +9,8 @@ import scipy.io as spio
 
 
 def ecdf2percentile(ecdf, percentile):
-    """Calculate a percentile of an Empirical CDF function as returned by the `statsmodels` package
+    """Calculate a percentile of an Empirical CDF function as returned by the
+    `statsmodels` package
 
     Parameters
     ----------
@@ -30,14 +32,17 @@ def ecdf2percentile(ecdf, percentile):
     >>> number_of_observations = 100
     >>> # generate random data variing in between 0 and 100
     >>> x_data = 100 * np.random.rand(number_of_observations)
-    >>> # calculate the cumulative distribution function of this random data using statsmodel
+    >>> # calculate the cumulative distribution function of this random data
     >>> e_cdf = sm.distributions.empirical_distribution.ECDF(x_data)
     >>> # print some P values belonging to the percentiles
-    >>> print("percentile {:2.1f} : ecdf ={:6.2f}".format(0.1, ecdf2percentile(ecdf=e_cdf, percentile=0.1)))
+    >>> print("percentile {:2.1f} : ecdf ={:6.2f}".format(0.1,
+    ... ecdf2percentile(ecdf=e_cdf, percentile=0.1)))
     percentile 0.1 : ecdf =  9.61
-    >>> print("percentile {:2.1f} : ecdf ={:6.2f}".format(0.5, ecdf2percentile(ecdf=e_cdf, percentile=0.5)))
+    >>> print("percentile {:2.1f} : ecdf ={:6.2f}".format(0.5,
+    ... ecdf2percentile(ecdf=e_cdf, percentile=0.5)))
     percentile 0.5 : ecdf = 46.87
-    >>> print("percentile {:2.1f} : ecdf ={:6.2f}".format(0.9, ecdf2percentile(ecdf=e_cdf, percentile=0.9)))
+    >>> print("percentile {:2.1f} : ecdf ={:6.2f}".format(0.9,
+    ... ecdf2percentile(ecdf=e_cdf, percentile=0.9)))
     percentile 0.9 : ecdf = 89.18
     """
 
@@ -52,7 +57,8 @@ def get_parameter_list_key(parlist):
     Parameters
     ----------
     parlist :
-        the parameter tree list (is an ordered list) contain all the values and current one
+        The parameter tree list (is an ordered list) contain all the values and current
+        one
 
     Returns
     -------
@@ -63,8 +69,8 @@ def get_parameter_list_key(parlist):
     -----
     The parameter tree widget has a field 'list' in which a list of values is given with
     corresponding integers. The current integer belonging to the parlist is obtained by
-    parlist.value() however, to get the associated value of the key field is less straightforward
-    In this routine it is retrieved
+    parlist.value() however, to get the associated value of the key field is less
+    straightforward In this routine it is retrieved
     """
 
     # the current value of the parlist
@@ -90,21 +96,22 @@ def get_column_with_max_cumulative_value(data, regular_expression=".*"):
     data : DataFrame
         Data frame with the columns
     regular_expression : str
-        Regular expression used to make a selection of columns to include. Default to '.*', which
-        means that all columns are included
+        Regular expression used to make a selection of columns to include. Default to
+        '.*', which means that all columns are included
 
     Returns
     -------
     str or None:
-        The name of the column with the maximum cumulative value or None if no columns were found
+        The name of the column with the maximum cumulative value or None if no columns
+        were found
 
     Notes
     -----
     * Only the columns with a name obeying the regular expression are taken into account
 
-    * An example of usage can be found in the fatigue monitoring software where we have data frames
-      with damage over all the channels at a hot spots. If you want to obtained the channel with
-      the maximum cumulative damage you can use this function
+    * An example of usage can be found in the fatigue monitoring software where we have
+      data frames with damage over all the channels at a hot spots. If you want to
+      obtained the channel with the maximum cumulative damage you can use this function
 
     Examples
     --------
@@ -125,7 +132,8 @@ def get_column_with_max_cumulative_value(data, regular_expression=".*"):
     >>> get_column_with_max_cumulative_value(data_frame)
     'D'
 
-    Obtain the name of the column with the maximum cumulative value only including colums A, B and C
+    Obtain the name of the column with the maximum cumulative value only including
+    colums A, B and C
 
     >>> get_column_with_max_cumulative_value(data_frame, regular_expression="[ABC]")
     'C'
@@ -175,8 +183,8 @@ def nans(shape, dtype=float):
 
 def get_nearest_index(data, value):
     """
-    Find the index of the first occurrence of a value in a array with monotonically increasing
-    values
+    Find the index of the first occurrence of a value in a array with monotonically
+    increasing values
 
     Parameters
     ----------
@@ -223,16 +231,16 @@ def get_nearest_index(data, value):
     Notes
     -----
     * Only arrays with monotonically increasing values are allowed.
-    * In case the nearest index of an arbitrary array is needed, `find_inx_nearest_val`  should be
-      used
-    * In case the `value` a larger than any value in the `data` array, the maximum index is return,
-      while in case the `value` is smaller than any value in the `data` array, a zero is return
+    * In case the nearest index of an arbitrary array is needed, `find_inx_nearest_val`
+      should be used
+    * In case the `value` a larger than any value in the `data` array, the maximum index
+      is returned, while in case the `value` is smaller than any value in the `data`
+      array, a zero is return
 
     See Also
     --------
-    find_idx_nearest_val: a function to get the index of the nearest value for an arbitraray array
-
-
+    find_idx_nearest_val: a function to get the index of the nearest value for an
+    arbitraray array
 
     """
     data_array = np.asanyarray(data)
@@ -295,7 +303,8 @@ def find_idx_nearest_val(array, value):
     >>> find_idx_nearest_val(data_array, value=2.1)
     6
 
-    If we change the first candidate so it becomes the nearest, this one will be returned
+    If we change the first candidate, so it becomes the nearest, this one will be
+    returned
 
     >>> data_array = np.array([3, 0, 2.09, 4, 2, 1])
     >>> find_idx_nearest_val(data_array, value=2.1)
@@ -303,16 +312,16 @@ def find_idx_nearest_val(array, value):
 
     Notes
     -----
-    * In case that 2 or more items exist with the same distance from `value`, the *last* occurrence
-      is returned
-    * In case the value is outside the range of any value inside the array, either 0 or N-1 is
-      return, with N the number of array elements of the input array
+    * In case that 2 or more items exist with the same distance from `value`, the
+      *last* occurrence is returned
+    * In case the value is outside the range of any value inside the array, either 0 or
+      N-1 is return, with N the number of array elements of the input array
 
     See Also
     --------
     get_nearest_index:
-        This function returns the first occurrence and only works for monotonically increasing
-        arrays
+        This function returns the first occurrence and only works for monotonically
+        increasing arrays
     """
     idx_sorted = np.argsort(array)
     sorted_array = np.array(array[idx_sorted])
@@ -393,8 +402,9 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
     Parameters
     ----------
     data_2d : ndarray
-        NxM array carrying the data. It is assumed that the data along one of the axis is periodic
-        and that we want to make the array cyclic by copying the first row or column to the end
+        NxM array carrying the data. It is assumed that the data along one of the axis
+        is periodic and that we want to make the array cyclic by copying the first row
+        or column to the end
     axis: int
         Axis to make periodic. Default = 0
     add_constant : float
@@ -403,23 +413,25 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
     Returns
     -------
     ndarray
-        Same 2d data array with one extra column (N+1 x M for axis == 0) or one extra row (N x M + 1
-        for axis == 1)
+        Same 2d data array with one extra column (N+1 x M for axis == 0) or one extra
+        row (N x M + 1 for axis == 1)
 
 
     Examples
     --------
-    First make some 2D data array using mesh grid containing the direction we want to make periodic
+    First make some 2D data array using mesh grid containing the direction we want to
+    make periodic
 
     >>> directions = np.linspace(0, 360, 6, endpoint=False)
-    >>> frequencies = np.linspace(0, 3, 3, endpoint=True)
+    >>> frequencies = np.linspace(0, 3, 3)
     >>> dd, ff = np.meshgrid(directions, frequencies)
     >>> dd
     array([[   0.,   60.,  120.,  180.,  240.,  300.],
            [   0.,   60.,  120.,  180.,  240.,  300.],
            [   0.,   60.,  120.,  180.,  240.,  300.]])
 
-    The array `dd` is periodic along the axis = 0 direction. So copy the first column to the end
+    The array `dd` is periodic along the axis = 0 direction. So copy the first column to
+    the end
 
     >>> dd_periodic = make_2d_array_cyclic(dd)
     >>> dd_periodic
@@ -427,8 +439,8 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
            [   0.,   60.,  120.,  180.,  240.,  300.,    0.],
            [   0.,   60.,  120.,  180.,  240.,  300.,    0.]])
 
-    We can do the same in case we have the transposed version, only we have to use the axis = 1
-    argument to pick the right axis
+    We can do the same in case we have the transposed version, only we have to use the
+    axis = 1 argument to pick the right axis
 
     >>> dd_tr = dd.T
     >>> dd_tr
@@ -448,8 +460,9 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
            [ 300.,  300.,  300.],
            [   0.,    0.,    0.]])
 
-    For polar plotting it is required that the angle is increasing, which means that the last 0
-    needs to be 360. This can be established by using the `add_constant` option
+    For polar plotting it is required that the angle is increasing, which means that
+    the last 0 needs to be 360. This can be established by using the `add_constant`
+    option
 
     >>> dd_periodic = make_2d_array_cyclic(dd, add_constant=360.)
     >>> dd_periodic
@@ -459,8 +472,9 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
 
     Notes
     -----
-    This function can be used to ensure that a 2D data array with directions at one axis can be
-    easily made periodic into the direction axis. This is a requirement to make a polar plot
+    This function can be used to ensure that a 2D data array with directions at one axis
+    can be easily made periodic into the direction axis. This is a requirement to make a
+     polar plot
 
     """
 
@@ -473,9 +487,7 @@ def make_2d_array_cyclic(data_2d, axis=0, add_constant=0.0):
         first_row = data_2d[0, :].reshape(1, data_2d.shape[1]) + add_constant
         data_2d_periodic = np.vstack((data_2d, first_row))
     else:
-        raise AssertionError(
-            "Argument `axis` can only be 0 or 1. {} given.".format(axis)
-        )
+        raise AssertionError(f"Argument `axis` can only be 0 or 1. {axis} given.")
 
     return data_2d_periodic
 
@@ -486,8 +498,8 @@ def extrap1d(interpolator):
 
     .. deprecated:: 0.3.4
 
-    Deprecated function, the scipy *interp1d* now can extrapolate as well. This function is
-    maintained for backward compatibility.
+    Deprecated function, the scipy *interp1d* now can extrapolate as well. This function
+    is maintained for backward compatibility.
 
     Parameters
     ----------
@@ -502,8 +514,8 @@ def extrap1d(interpolator):
     Examples
     --------
 
-    Assumed you have a x and y array you want to interpolate. You can use the scipy interp1d
-    function for that
+    Assumed you have a x and y array you want to interpolate. You can use the
+    scipy interp1d function for that
 
     >>> from scipy.interpolate import interp1d
 
@@ -517,7 +529,8 @@ def extrap1d(interpolator):
 
     >>> f_inter = interp1d(xp, yp)
 
-    Interpolation on a new mesh within the boundaries of the previous mesh can be done as
+    Interpolation on a new mesh within the boundaries of the previous mesh can be done
+    as
 
     >>> xp_new = np.linspace(0, 3, 6)
     >>> yp_new = f_inter(xp_new)
@@ -525,9 +538,9 @@ def extrap1d(interpolator):
     [[ 0.   0.6  1.2  1.8  2.4  3. ]
      [ 0.   0.6  1.6  3.4  6.   9. ]]
 
-    However, perhaps you want to extend the boundaries outside the initial boundaries. In that case
-    you can use extrap1 in order to extrapolate the function outside the boundaries. First create
-    the Extrapolator using the scipy Interpolator
+    However, perhaps you want to extend the boundaries outside the initial boundaries.
+    In that case you can use extrap1 in order to extrapolate the function outside the
+    boundaries. First create the Extrapolator using the scipy Interpolator
 
     >>> f_extra = extrap1d(f_inter)
 
@@ -539,7 +552,8 @@ def extrap1d(interpolator):
     [[  0.    0.5   1.    1.5   2.    2.5   3.    3.5   4. ]
      [  0.    0.5   1.    2.5   4.    6.5   9.   11.5  14. ]]
 
-    In the latest scipy version extrapolation is possible with the *interp1d* function as well  :
+    In the latest scipy version extrapolation is possible with the *interp1d* function
+    as well  :
 
     >>> f_extra2 = interp1d(xp, yp, fill_value="extrapolate")
     >>> yp_new3 = f_extra2(xp_new2)
@@ -548,8 +562,8 @@ def extrap1d(interpolator):
      [  0.    0.5   1.    2.5   4.    6.5   9.   11.5  14. ]]
 
     As you can see, the result is the same as the *extrap1d* function. The native
-    scipy.interp1d with *extrapolate* as *fill_values* is recommended; the *extrap1d* function is
-    only kept for backward compatibility and may be dropped soon
+    scipy.interp1d with *extrapolate* as *fill_values* is recommended; the *extrap1d*
+    function is only kept for backward compatibility and may be dropped soon
 
     We can plot the results and compare it with the original data line
 
@@ -568,17 +582,19 @@ def extrap1d(interpolator):
     Notes
     -----
 
-    * In case you want to use interpolate with values outside of the boundaries, this function
-      allows to extrapolate outside the boundaries as described here interp_
+    * In case you want to use interpolate with values outside of the boundaries, this
+      function allows to extrapolate outside the boundaries as described here interp_
 
     References
     ----------
 
-    http://stackoverflow.com/questions/2745329/how-to-make-scipy-interpolate-give-an-extrapolated-result-beyond-the-input-range
+    http://stackoverflow.com/questions/2745329/
+    how-to-make-scipy-interpolate-give-an-extrapolated-result-beyond-the-input-range
     https://stackoverflow.com/a/37172840/4515114
 
     .. _interp:
-        http://stackoverflow.com/questions/2745329/how-to-make-scipy-interpolate-give-an-extrapolated-result-beyond-the-input-range
+        http://stackoverflow.com/questions/2745329/
+        how-to-make-scipy-interpolate-give-an-extrapolated-result-beyond-the-input-range
     """
 
     xs = interpolator.x
@@ -611,7 +627,8 @@ def print_mat_nested(d, indent=0, nkeys=0):
 
     References
     ----------
-    * http://stackoverflow.com/questions/3229419/pretty-printing-nested-dictionaries-in-python
+    * http://stackoverflow.com/questions/3229419/
+      pretty-printing-nested-dictionaries-in-python
     """
 
     # Subset dictionary to limit keys to print.  Only works on first level
@@ -679,14 +696,15 @@ def loadmat(filename):
     Notes
     -----
 
-    * This function should be called instead of direct spio.loadmat as it cures the problem of not
-      properly recovering python dictionaries from mat files. It calls the function check keys to
-      cure all entries which are still mat-objects
+    * This function should be called instead of direct spio.loadmat as it cures the
+      problem of not properly recovering python dictionaries from mat files. It calls
+      the function check keys to cure all entries which are still mat-objects
 
     References
     ----------
     * http://pyhogs.github.io/reading-mat-files.html
-    * http://stackoverflow.com/questions/7008608/scipy-io-loadmat-nested-structures-i-e-dictionaries
+    * http://stackoverflow.com/questions/7008608/
+    scipy-io-loadmat-nested-structures-i-e-dictionaries
     """
     data = spio.loadmat(filename, struct_as_record=False, squeeze_me=True)
     return _check_keys(data)
