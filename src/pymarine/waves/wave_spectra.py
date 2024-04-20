@@ -9,7 +9,6 @@ import logging
 from math import gamma, lgamma, sqrt
 
 import numpy as np
-import scipy as sp
 from matplotlib.pyplot import figure, ioff, plot, show, title
 from numpy.fft import fftshift, ifftshift
 from scipy.constants import g as g0
@@ -567,7 +566,7 @@ def omega_deep_water(wave_number_vector):
 
     """
     size = wave_number_vector.size
-    omega_d = np.sqrt(abs(wave_number_vector) * g0) * sp.where(
+    omega_d = np.sqrt(abs(wave_number_vector) * g0) * np.where(
         wave_number_vector >= 0, np.full(size, 1.0), np.full(size, -1.0)
     )
     return omega_d
@@ -633,7 +632,7 @@ def spectrum_wave_k_domain(
         size = k_waves.size
     except AttributeError:
         size = 1
-    sign = sp.where(k_waves < 0, np.full(size, -1.0), np.full(size, 1.0))
+    sign = np.where(k_waves < 0, np.full(size, -1.0), np.full(size, 1.0))
 
     # replace zero k_waves for a TINY number to prevent a zero by division error
     kk = np.abs(np.where(abs(k_waves) < TINY, np.full(size, sign * TINY), k_waves))
@@ -717,7 +716,7 @@ def spectrum_jonswap_k_domain_2(
     # Copy the whole vector k_wave to kk to prevent that the array is changed outside
     # the routine (as it is passed by reference)
     sign = np.where(k_waves < 0, np.full(size, -1.0), np.full(size, 1.0))
-    kk = sp.where(abs(k_waves) < TINY, sign * TINY, abs(k_waves))
+    kk = np.where(abs(k_waves) < TINY, sign * TINY, abs(k_waves))
 
     try:
         omega_peak = 2 * np.pi / Tp
@@ -730,7 +729,7 @@ def spectrum_jonswap_k_domain_2(
 
         # set JS sigma 0.07 for omega<omega_peak and 0.09 otherwise. since
         # kp=sqrt(om/g), the same holds for kk
-        sigma = sp.where(kk <= kp, np.full(size, 0.07), np.full(size, 0.09))
+        sigma = np.where(kk <= kp, np.full(size, 0.07), np.full(size, 0.09))
 
         # Pierson Moskowitz contribution
         SPM = alpha * Hs**2 * kp**2 / (2 * kk**3) * np.exp(-beta * (kp / kk) ** 2)
@@ -1831,11 +1830,11 @@ def specspecs(frequency, amplitude, lowlim=0.01, higlim=0.9, mirror=False):
     cdf = np.cumsum(pdf * delta_f)
 
     # the index where the amplitude exceeds the 0.5% of the total energy
-    i_low = np.argmax(sp.where(cdf > lowlim, 1, 0))
+    i_low = np.argmax(np.where(cdf > lowlim, 1, 0))
     f_low = freq[i_low]
 
     # the index where the amplitude exceeds the 95.5% of the total energy
-    i_high = np.argmax(sp.where(cdf > higlim, 1, 0))
+    i_high = np.argmax(np.where(cdf > higlim, 1, 0))
     f_high = freq[i_high]
 
     # The interval between f01 and f96 contains 95 percent of the spectral energy
@@ -1900,12 +1899,12 @@ def thetaspreadspecs(theta, Dspread, areafraction=0.99):
     pdf = Dsprime / area
     cdf = np.cumsum(pdf * dtheta)
 
-    # the areafraction give the total fraction (close to one) which should be contained
-    # by the theta_min , theta_max interval.
+    # The area fraction gives the total fraction (close to one) which should be
+    # contained by the theta_min , theta_max interval.
     lowlim = (1 - areafraction) / 2.0
 
     # the index where the amplitude exceeds the 0.5% of the total energy
-    i_low = np.argmax(sp.where(cdf > lowlim, 1, 0))
+    i_low = np.argmax(np.where(cdf > lowlim, 1, 0))
     theta_low = thetaprime[i_low]
 
     # the index of the high boundary is symmetrically located at the other side of the
