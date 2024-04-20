@@ -668,7 +668,7 @@ def loadmat(filename):
     Examples
     --------
 
-    In order to read a matlab file do
+    To read a matlab file do
 
     >>> import os
     >>> file_name = os.path.join("..", "data", "RAO_7.mat")
@@ -691,8 +691,6 @@ def loadmat(filename):
     array([  0,  15,  30,  45,  60,  75,  90, 105, 120, 135, 150, 165, 180,
            195, 210, 225, 240, 255, 270, 285, 300, 315, 330, 345], dtype=uint16)
 
-
-
     Notes
     -----
 
@@ -704,7 +702,7 @@ def loadmat(filename):
     ----------
     * http://pyhogs.github.io/reading-mat-files.html
     * http://stackoverflow.com/questions/7008608/
-    scipy-io-loadmat-nested-structures-i-e-dictionaries
+      scipy-io-loadmat-nested-structures-i-e-dictionaries
     """
     data = spio.loadmat(filename, struct_as_record=False, squeeze_me=True)
     return _check_keys(data)

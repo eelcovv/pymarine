@@ -81,13 +81,12 @@ def alpha_jonswap(wind_speed, fetch):
 
 
     * Deprecated: it is better to define the Jonswap spectrum by explicitly specifying
-    Hs and Tp
+      Hs and Tp
 
     """
     return 0.076 * (wind_speed**2 / (fetch * g0)) ** 0.22
 
 
-# @profile
 def spreading_function2(
     theta, theta0=0.0, s_spreading_factor=5, n_spreading_factor=None
 ):
@@ -166,7 +165,6 @@ def spreading_function2(
     return factor * (np.cos(0.5 * theta_prime)) ** (2 * s_spreading_factor)
 
 
-# @profile
 def spreading_function(
     theta, theta0=0.0, s_spreading_factor=5, n_spreading_factor=None
 ):
@@ -289,7 +287,6 @@ def spreading_function(
     return np.exp(logspread)
 
 
-# @profile
 def spectrum_gauss(omega, Hs=1.0, Tp=10.0, sigma=0.0625, spectral_version="dnv"):
     """Calculate the gauss spectral density function
 
@@ -392,7 +389,6 @@ def ag_taylor_expand(gamma):
     return ag
 
 
-# @profile
 def spectrum_jonswap(omega, Hs=1.0, Tp=10.0, gamma=3.3, spectral_version="dnv"):
     """
     Calculate the Jonswap Wave Spectral Density function vs. the angular frequency
@@ -539,7 +535,6 @@ def spectrum_jonswap(omega, Hs=1.0, Tp=10.0, gamma=3.3, spectral_version="dnv"):
     return psd
 
 
-# @profile
 def omega_deep_water(wave_number_vector):
     r"""Deep water wave dispersion relation
 
@@ -572,7 +567,6 @@ def omega_deep_water(wave_number_vector):
     return omega_d
 
 
-# @profile
 def spectrum_wave_k_domain(
     k_waves,
     Hs=1.0,
@@ -666,7 +660,6 @@ def spectrum_wave_k_domain(
     return spectrum_vs_k
 
 
-# @profile
 def spectrum_jonswap_k_domain_2(
     k_waves, Hs=1.0, Tp=10.0, gamma=3.3, spectral_version="sim"
 ):
@@ -754,7 +747,6 @@ def spectrum_jonswap_k_domain_2(
     return psd
 
 
-# @profile
 def spectrum_to_complex_amplitudes(omega, spectral_modulus, phase, mirror=False):
     """Turn a wave spectral density function into a set of complex amplitudes
 
@@ -948,7 +940,6 @@ def spectrum_complex_amplitudes_on_k_mesh(
     return complex_amplitudes
 
 
-# @profile
 def spectrum2d_complex_amplitudes(
     kx_nodes,
     ky_nodes,
@@ -1254,7 +1245,6 @@ def rotate_fft_2d(data2d, angle=0, pivot_x=0, pivot_y=0):
     return data2d_new
 
 
-# @profile
 def omega_e_vs_omega(omega, u_monitor):
     r"""Calculate the relation between the encountered and true frequency
 
@@ -1293,7 +1283,6 @@ def omega_e_vs_omega(omega, u_monitor):
     return omega_e
 
 
-# @profile
 def d_omega_e_prime(omega, velocity):
     """Calculate the gradient of the relation between the encountered and true frequency
 
@@ -1392,7 +1381,7 @@ def omega_critical(velocity, omega=None):
 
 
 def omega_vs_omega_e(omega, velocity):
-    """Calculate the the relation between the true and encountered frequency
+    """Calculate the relation between the true and encountered frequency
 
     Parameters
     ----------
@@ -1404,7 +1393,7 @@ def omega_vs_omega_e(omega, velocity):
     Returns
     -------
     tuple:
-        (omega_1, omega_2) : 2 real frequencies belonging to the same encountered
+        (omega_1, omega_2): 2 real frequencies belonging to the same encountered
         frequency or omega_1, None if only one solution is available or
         (None, None) if no solutions exist
 
@@ -1445,10 +1434,9 @@ def omega_vs_omega_e(omega, velocity):
         D = 1 - \\frac{2\\omega_e}{\\omega_c}
 
     For :math:`\\omega_e = \\omega_c/2` there is exactly one
-            solution: :math:`\\omega=\\omega_c`.
-    For :math:`\\omega_e < \\omega_c/2` two solution are returned and
+    solution: :math:`\\omega=\\omega_c`.
+    For :math:`\\omega_e < \\omega_c/2`,  two solution are returned and
     for :math:`\\omega_e > \\omega_c/2` no solutions exist.
-
     """
     if abs(velocity) < TINY:
         # For a zero velocity, the frequency and encountered frequency are the same
@@ -1476,7 +1464,6 @@ def omega_vs_omega_e(omega, velocity):
     return omega1, omega2
 
 
-# @profile
 def spectrum_to_spectrum_encountered(spectrum, frequencies, velocity, debug_plot=False):
     """Apply a velocity shift on a 1d spectrum density to obtain the encountered
        spectrum
@@ -1588,7 +1575,6 @@ def spectrum_to_spectrum_encountered(spectrum, frequencies, velocity, debug_plot
     return spectrum_e_int, np.vstack((omega_e, omega_e_swap, spectrum_e))
 
 
-# @profile
 def spectrum2d_to_spectrum2d_encountered(
     spectrum_2d, frequencies, directions, velocity, debug_plot=False
 ):
@@ -1697,7 +1683,6 @@ def spectrum2d_to_spectrum2d_encountered(
     return spectrum_2d_e_int
 
 
-# @profile
 def mask_out_of_range(kx, kmin, kmax):
     """Create a mask array with the values in between kmin and kmax True
 
@@ -1737,7 +1722,6 @@ def mask_out_of_range(kx, kmin, kmax):
     return mask
 
 
-# @profile
 def initialize_phase(k_waves, seed=1):
     r"""
     Initialise a random phase is in the range :math:`0\sim 2\pi` for all the nodes of
@@ -1768,7 +1752,6 @@ def initialize_phase(k_waves, seed=1):
     return 2 * np.pi * np.random.random_sample(k_waves.shape)
 
 
-# @profile
 def specspecs(frequency, amplitude, lowlim=0.01, higlim=0.9, mirror=False):
     """Calculate some specs from a spectrum: the peak frequency, total energy, etc.
 
@@ -1841,7 +1824,6 @@ def specspecs(frequency, amplitude, lowlim=0.01, higlim=0.9, mirror=False):
     return i_low, i_high, peak_index, f_low, f_high, f_peak, a_peak, variance
 
 
-# @profile
 def thetaspreadspecs(theta, Dspread, areafraction=0.99):
     """Calculate some specs from a spectrum: the peak frequency, total energy, etc.
 

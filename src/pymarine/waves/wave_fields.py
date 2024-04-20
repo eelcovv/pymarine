@@ -49,7 +49,7 @@ dispersion relation according to
 
 .. math ::
 
-    \\omega_i =  \\sqrt{g  |k_i|}
+    \\omega_i = \\sqrt{g  |k_i|}
 
 with :math:`g=9.81 m/s^2` being the gravity constant.
 We can rewrite the wave equation in matrix form:
@@ -134,15 +134,15 @@ Again, three ways to solve the wave field from the spectral components have been
 implemented:
 
 * *DFTpolar*: A 2D wave field is constructed from the multiplication of the Spectral
-density S(k) and the directional distribution D(theta). A Discrete Fourier Transform
-(DFT) is used to calculate the wave field. This is a straightforward implementation,
-but again, DFT is `slow` to calculate, especially in 2D, so only use this for testing.
-You can speed up the calculation by selecting wave node with an amplitude larger than a
-certain threshold. * *FFT*: if a symmetry in spectral k domain is imposed we can again
-use the FFT to calculate the wave field. Recommended
+  density S(k) and the directional distribution D(theta). A Discrete Fourier Transform
+  (DFT) is used to calculate the wave field. This is a straightforward implementation,
+  but again, DFT is `slow` to calculate, especially in 2D, so only use this for testing.
+  You can speed up the calculation by selecting wave node with an amplitude larger than
+  a certain threshold. * *FFT*: if a symmetry in spectral k domain is imposed we can
+  again use the FFT to calculate the wave field. Recommended
 * *DFTcartesian*: The exact same symmetric spectral amplitudes as the FFT is used, but
-the wave is calculate with a DFT. Slow and no possibility of wave selection, so only
-used for testing purposes
+  the wave is calculate with a DFT. Slow and no possibility of wave selection, so only
+  used for testing purposes
 
 .. _dft2d:
 
