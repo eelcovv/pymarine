@@ -1,5 +1,5 @@
 """
-Some numerical utilities used in other hmc modules
+Some numerical utilities used in other modules
 """
 
 import re

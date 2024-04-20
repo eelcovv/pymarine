@@ -1,5 +1,5 @@
 """
-HMC Marine Wave spectral distributions
+Marine Wave spectral distributions
 
 Implementations of some standard wave spectra and distribution functions and other
 utilities.
