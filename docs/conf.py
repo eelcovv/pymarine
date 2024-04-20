@@ -88,7 +88,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "pymarine"
-copyright = "2023, Eelco van Vliet"
+copyright = "2024, Eelco van Vliet"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
