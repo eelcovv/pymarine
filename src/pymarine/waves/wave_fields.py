@@ -10,7 +10,7 @@ The theoretical background has the following contents
 * Wave1D_ : Description of the Wave1D class
     - dft1d_ :  Discrete Fourier Transform implementation for 1D wave spectra
     - fft1d_ :  Fast Fourier Transform implementation for 1D waves spectra
-* Wave2D_ : Description of the Wave1D class
+* Wave2D_ : Description of the Wave2D class
     - dft2d_ :  Discrete Fourier Transform implementation for 2D wave spectra
     - fft2d_ :  Fast Fourier Transform implementation for 2D wave spectra
 * References_ : List of literature used for this implementation
@@ -36,14 +36,14 @@ follows
 
     \\eta(x_p, t) = \\sum_i^{n_k} a_i \\exp(j (k_i x_p - \\omega_i t + \\phi_i))
 
-where :math:`j^2\\equiv -1`, the amplitude :math:`a_i` follow from the power spectral
+where :math:`j^2\\equiv -1`, the amplitude :math:`a_i` follows from the power spectral
 density :math:`S(\\mathbf{k})` as
 
 .. math ::
 
-    a_i = \\sqrt{2 S(k_i) dk_i}
+    a_i = \\sqrt{2 S(k_i) dk_i},
 
-:math:`\\phi_i` is the random phase corresponding to the wave node :math:`i` and  the
+:math:`\\phi_i` is the random phase corresponding to the wave node :math:`i`, and the
 angular frequency :math:`\\omega_i` is related to the wave vector via the deep water
 dispersion relation according to
 
@@ -70,7 +70,7 @@ and the complex  amplitude :math:`\\hat{A}_i` follows from
 
     \\hat{A}_{i} = a_i\\exp(j\\phi_i)
 
-From the matrix form is can be seen that the wave equation can calculated  by a dot
+From the matrix form is can be seen that the wave equation can be calculated by a dot
 product multiplication of the :math:`n_x \\times n_k` matrix :math:`M_{ip}` and the
 vector :math:`\\exp(-j\\omega_i t)` of size :math:`n_k \\times 1`.
 The result is a :math:`1 \\times n_x` vector of the wave along the
@@ -91,23 +91,21 @@ We can obtain the version in wave vector domain using the equality
 Using the PSD in the wave vector domain has the advantage that we only have to deal with
 the periodicity of the discrete Fourier transform in the spatial domain x: a wave will
 be period after a length :math:`2\\pi/\\Delta k`. To get rid of this periodicity is we
-can simply use a spatial domain which larger than this repetition length. The waves in
-time domain, however, are never periodic in this formulation, so we can run the
-simulated wave infinitely long without seeing the same signal twice.
+can simply use a spatial domain which larger than this repetition length.
 
 .. _fft1d:
 
 Wave equation with FFT
 ----------------------
 
-In case the number of wave numbers nodes is equal to the number of spatial nodes and we
+In case the number of wave numbers nodes is equal to the number of spatial nodes, and we
 have ensured that
 
 .. math ::
 
     \\hat{A}(-k_i)\\exp(-j\\omega t) = \\hat{A}^\\ast(k_i)\\exp(j\\omega t)
 
-we can use the FFT algorithm for calculating the wave equation at time :math:`t`.  This
+we can use the FFT algorithm for calculating the wave equation at time :math:`t`. This
 is because the FFT uses the symmetry rule that for any *real* valued signal
 :math:`F(x)`, the Fourier transform :math:`\\hat{F}(k)`  by definition has the property
 that :math:`\\hat{F}(-k) = \\hat{F}^\\ast(k)` (where the :math:`\\ast` indicates the
@@ -123,26 +121,27 @@ field is set to *FFT*.
 Wave2D: Theoretical background on two-D waves
 =============================================
 
-Wave Wave2D Class give a description of a 2D propagating wave with a spectral density
+The Wave2D Class gives a description of a 2D propagating wave with a spectral density
 distribution given by either a Gauss or a Jonswap spectrum. The class extents the
 functionality of the Wave1D: it obtains all the information related to the 1D wave in
 k-vector domain from the wave1D attribute field which stores a Wave1D object. For all
 the information additionally required for the 2D description (like spreading function),
-extra attribute fields are added.
+extra attributes are added to the class.
 
 Again, three ways to solve the wave field from the spectral components have been
 implemented:
 
-* *DFTpolar*: A 2D wave field is constructed from the multiplication of the Spectral
-  density S(k) and the directional distribution D(theta). A Discrete Fourier Transform
-  (DFT) is used to calculate the wave field. This is a straightforward implementation,
-  but again, DFT is `slow` to calculate, especially in 2D, so only use this for testing.
-  You can speed up the calculation by selecting wave node with an amplitude larger than
-  a certain threshold. * *FFT*: if a symmetry in spectral k domain is imposed we can
-  again use the FFT to calculate the wave field. Recommended
-* *DFTcartesian*: The exact same symmetric spectral amplitudes as the FFT is used, but
-  the wave is calculate with a DFT. Slow and no possibility of wave selection, so only
-  used for testing purposes
+1. *DFTpolar*: A 2D wave field is constructed from the multiplication of the Spectral
+   density S(k) and the directional distribution D(theta). A Discrete Fourier Transform
+   (DFT) is used to calculate the wave field. This is a straightforward implementation,
+   but again, DFT is `slow` to calculate, especially in 2D, so only use this for
+   testing. You can speed up the calculation by selecting wave node with an amplitude
+   larger than a certain threshold.
+2. *FFT*: if symmetry in spectral k domain is imposed, we can again use the FFT to
+   calculate the wave field. Recommended
+3. *DFTcartesian*: The exact same symmetric spectral amplitudes as the FFT is used, but
+   the wave is calculated with a DFT. This is so slow that it is not possible to
+   include all wave components, so only used for testing purposes.
 
 .. _dft2d:
 
