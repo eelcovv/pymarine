@@ -1,15 +1,16 @@
 """
-Some functions to support with plotting in Python, mostly based on the *matplotlib* module
+Some functions to support with plotting in Python based on the *matplotlib* module
 """
+
 import itertools
-import re
 import logging
+import re
 
 _logger = logging.getLogger()
 
 
-# definition of hmc colors
-c_hmc = dict(
+# definition of colors
+c_sim = dict(
     blue="#0083D1",
     lightblue="#69ABD2",
     red="#DD2E1A",
@@ -20,8 +21,8 @@ c_hmc = dict(
 
 
 def analyse_annotations(annotation):
-    """Analyse the string `annotation` which compactly sets the properties of a label string such as
-    position, size and color.
+    """Analyze the string `annotation` which compactly sets the properties of a label
+    string such as position, size and color.
 
     Parameters
     ----------
@@ -31,22 +32,23 @@ def analyse_annotations(annotation):
     Returns
     -------
     tuple of strings and integers
-        text (str), x position (float) y position (float), color (str), size (int), axis (int)
+        text (str), x position (float) y position (float), color (str), size (int),
+        axis (int)
 
     Notes
     -----
-    * The annotation string can be just given a a label. This label optionally can be extended
-      with a '@' sign to include more information, like the location (xp, yp), the size with s10,
-      the color with c and the axis with a and a integer
+    * The annotation string can be just given a a label. This label optionally can be
+      extended with a '@' sign to include more information, like the location (xp,
+     yp), the size with s10, the color with c and the axis with a and a integer
 
-    * The annotation format is mostly used as a compact way to provide information on the annotation
-      via a user input file
+    * The annotation format is mostly used as a compact way to provide information on
+      the annotation via a user input file
 
-    * When specifying a color with the c construct, make sure that you put the color at the end of
-      the *annotation* string.
+    * When specifying a color with the c construct, make sure that you put the color at
+      the end of the *annotation* string.
 
-    * In the Parameter scription we used a hex formulation for the color like cFFAA00. However,
-      also the color names like cblue or cred are allowed
+    * In the Parameter scription we used a hex formulation for the color like cFFAA00.
+      However, also the color names like cblue or cred are allowed
 
     * In case you add chmc:red, the hmc definition of red will be used. Other hmc color
       definitions are:
@@ -79,14 +81,14 @@ def analyse_annotations(annotation):
     >>> analyse_annotations("more_complex@0.1,0.4")
     ('more_complex', 0.1, 0.4, 'black', 12, 0)
 
-    place a label at position x=0.8, y=0.9 with color red. Note that we need to add brackets
-    around the location
+    place a label at position x=0.8, y=0.9 with color red. Note that we need to add
+    brackets around the location
 
     >>> analyse_annotations("colored_label@(0.8,0.9)cred")
     ('colored_label', 0.8, 0.9, 'red', 12, 0)
 
-    place a label at position x=0.8, y=0.9 with color red. Note that we need to add brackets
-    around the location
+    place a label at position x=0.8, y=0.9 with color red. Note that we need to add
+    brackets around the location
 
     >>> analyse_annotations("small_label@(0.8,0.9)s8")
     ('small_label', 0.8, 0.9, 'black', 8, 0)
@@ -102,7 +104,7 @@ def analyse_annotations(annotation):
     >>> analyse_annotations("label@(0.8,0.9)s16a2chmc:red")
     ('label', 0.8, 0.9, '#DD2E1A', 16, 2)
 
-    As you can see, the hex code of HMC read is returned.
+    As you can see, the hex code is returned.
 
     To set the xkcd colors do
 
@@ -116,7 +118,7 @@ def analyse_annotations(annotation):
     color = "black"
     axis = 0
     size = 12
-    pos = "({},{})".format(lx, ly)
+    pos = f"({lx},{ly})"
     # first replace all white spaces from the string, as it is not allowed
     try:
         # see if there is an @ sign indicating that the position is specified
@@ -125,10 +127,10 @@ def analyse_annotations(annotation):
             # after the @ sign we start with the position between brackets (,). Find it
             pos, rest = re.sub("[(|)]", " ", rest).split()
 
-            # now the rest is only a size s18 and a color cred or c#FFAA00 (hexa code). First get
-            # the size, then the color
-            size_pattern = "s(\d+)"
-            axis_pattern = "a(\d)"
+            # now the rest is only a size s18 and a color cred or c#FFAA00 (hexa code).
+            # First get the size, then the color
+            size_pattern = r"s(\d+)"
+            axis_pattern = r"a(\d)"
             color_pattern = "c(.*)"
             m = re.search(size_pattern, rest)
             if bool(m):
@@ -146,7 +148,8 @@ def analyse_annotations(annotation):
                 color = m.group(1)
 
         except ValueError:
-            # in case of a value error we did not have a rest, so try again without split
+            # in case of a value error we did not have a rest, so try again without
+            # split
             pos = re.sub("[(|)]", " ", rest)
         finally:
             lx, ly = pos.split(",")
@@ -155,16 +158,6 @@ def analyse_annotations(annotation):
     except ValueError:
         # there as no @ sign: just return the text value with all the rest the defaults
         text = annotation
-
-    if re.match("^hmc:", color):
-        hmc_color_name = color.split(":")[1]
-        try:
-            color = c_hmc[hmc_color_name]
-        except KeyError:
-            _logger.warning(
-                "color name not recognised: {}. Keeping black".format(color)
-            )
-            color = "black"
 
     return text, lx, ly, color, size, axis
 
@@ -183,10 +176,11 @@ def clean_up_artists(axis, artist_list):
     Notes
     -----
 
-    In case of animation of complex plots with contours and labels (such as a timer) we sometimes
-    need to take care of removing all the Artists which are changing every time step.
-    This function takes care of that. It also also ensured that we are not running out of memory
-    when too many Artists are added
+    In case of animation of complex plots with contours and labels (such as a timer) we
+    sometimes need to take care of removing all the Artists which are changing every
+    time step.
+    This function takes care of that. It also also ensured that we are not running out
+    of memory when too many Artists are added
 
     Examples
     --------
@@ -249,7 +243,8 @@ def clean_up_plot(artist_list):
     Notes
     -----
 
-    Necessary if you want to loop over multiple plot and maintain the axes and only update the data.
+    Necessary if you want to loop over multiple plot and maintain the axes and only
+    update the data.
     Basically this does the same as `clean_up_artists`
 
     """
@@ -272,8 +267,8 @@ def clean_up_plot(artist_list):
 
 def sub_plot_axis_to_2d(axis, n_rows=1, n_cols=1):
     """
-    Turn the axis return value of matplotlibs subfigures in a 2D list, regardless of the number of
-    rows and columns
+    Turn the axis return value of matplotlibs subfigures in a 2D list, regardless of the
+    number of rows and columns
 
     Parameters
     ----------
@@ -292,15 +287,16 @@ def sub_plot_axis_to_2d(axis, n_rows=1, n_cols=1):
     Notes
     -----
 
-    The return axis of the *matplotlib.subplots* command is 2D in the case we have more than one row
-    and more than one column. However, if there is only one row or col then the list will be 1D,
-    for *n_col = 1* and *n_row = 1* the axis are directly returned. This scrips ensures that the
-    list is always started as a 2D list such that the axis can be referred to with two indices:
-    *axis[i_row][j_col]*, also if we only have on row or columns
+    The return axis of the *matplotlib.subplots* command is 2D in the case we have more
+    than one row and more than one column. However, if there is only one row or col,
+    the list will be 1D, for *n_col = 1* and *n_row = 1* the axis are directly returned.
+    This scrips ensures that the list is always started as a 2D list such that the axis
+    can be referred to with two indices: *axis[i_row][j_col]*, also if we only have on
+    row or columns
 
-    The practical usage of this function is to be able to write more generic code for which it is
-    not known before hand how many rows and columns need to be generated (it may depend on the user
-    input).
+    The practical usage of this function is to be able to write more generic code for
+    which it is not known before hand how many rows and columns need to be generated
+    (it may depend on the user input).
 
     Examples
     --------
@@ -311,8 +307,8 @@ def sub_plot_axis_to_2d(axis, n_rows=1, n_cols=1):
     >>> from numpy import (sin, cos, pi, linspace)
     >>> fig, axis = plt.subplots(nrows=1, ncols=2)
 
-    At this point, *axis* is a 1D list of 2 *matplotlib.axis.Axes* objects, one for each column.
-    So we can plot like this
+    At this point, *axis* is a 1D list of 2 *matplotlib.axis.Axes* objects, one for
+    each column. So we can plot like this
 
     >>> x = linspace(0, 2 * pi, num=100)
     >>> l0 = axis[0].plot(x, sin(x))
@@ -322,21 +318,21 @@ def sub_plot_axis_to_2d(axis, n_rows=1, n_cols=1):
 
     >>> axis_2d = sub_plot_axis_to_2d(axis, n_cols=2)
 
-    Now, axis2d is a 2D list of Axes for 2 columns which are referred as axis[0][0] and axis[0][1],
-    so we can plot
+    Now, axis2d is a 2D list of Axes for 2 columns which are referred as axis[0][0] and
+    axis[0][1], so we can plot
 
     >>> l2d0 = axis_2d[0][0].plot(x, sin(x))
     >>> l2d1 = axis_2d[0][1].plot(x, cos(x))
 
     Note that we are referring to *axis_2d* as a 2D list with 2 indices in stead of one.
-    This allows to create plots on the subplots returned axis in always the same way, which is handy
-    if we don't know beforehand how many rows and columns we have.
+    This allows to create plots on the subplots returned axis in always the same way,
+    which is handy if we don't know beforehand how many rows and columns we have.
 
     """
     new_axis = list()
     if n_cols == 1 and n_rows == 1:
-        # we have only one column and one row. Make the new 2D list by appending a list of the axis
-        # to the new axis
+        # We have only one column and one row. Make the new 2D list by appending a list
+        # of the axis to the new axis
         new_axis.append([axis])
     elif n_cols == 1 and n_rows > 1:
         for i_r in range(n_rows):
@@ -369,7 +365,8 @@ def set_limits(axis, v_min=None, v_max=None, direction=0):
 
     Notes
     -----
-    If only the min or max is imposed, obtained the other limit from the current settings
+    If only the min or max is imposed, obtained the other limit from the current
+    settings
     """
     lim = list()
     if direction in (0, "x"):
@@ -400,7 +397,8 @@ def set_limits(axis, v_min=None, v_max=None, direction=0):
 
 def get_valid_legend_handles_labels(axis):
     """
-    Function to get all the labels from an axis which are not set to "None" (as a string!)
+    Function to get all the labels from an axis which are not set to "None"
+    (as a string!)
 
     Parameters
     ----------
