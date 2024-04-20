@@ -1,36 +1,33 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-import pytest
-
 import numpy as np
 from numpy import pi
 from numpy.testing import assert_almost_equal, assert_equal
 
 from pymarine.waves.wave_spectra import (
-    omega_peak_jonswap,
     alpha_jonswap,
-    spreading_function2,
-    spreading_function,
+    d_omega_e_prime,
+    initialize_phase,
+    mask_out_of_range,
+    omega_critical,
+    omega_deep_water,
+    omega_e_vs_omega,
+    omega_peak_jonswap,
+    omega_vs_omega_e,
+    rayleigh_cdf,
+    rayleigh_pdf,
+    set_heading,
+    specspecs,
+    spectrum2d_complex_amplitudes,
+    spectrum2d_to_spectrum2d_encountered,
     spectrum_gauss,
     spectrum_jonswap,
     spectrum_jonswap_k_domain_2,
-    omega_deep_water,
-    spectrum_wave_k_domain,
     spectrum_to_complex_amplitudes,
-    initialize_phase,
-    spectrum2d_complex_amplitudes,
-    omega_e_vs_omega,
-    d_omega_e_prime,
-    omega_critical,
-    omega_vs_omega_e,
     spectrum_to_spectrum_encountered,
-    spectrum2d_to_spectrum2d_encountered,
-    mask_out_of_range,
-    specspecs,
+    spectrum_wave_k_domain,
+    spreading_function,
+    spreading_function2,
     thetaspreadspecs,
-    rayleigh_pdf,
-    rayleigh_cdf,
-    set_heading,
 )
 
 
@@ -344,8 +341,8 @@ def test_spectrum_jonswap_k_domain():
         hs_out = 4 * np.sqrt(result.sum() * delta_k)
         assert_almost_equal(hs_out, hs_in, decimal=2)
 
-        # spectrum_jonswap_k_domain_2 is the explicit verison of the transormed jonswap spectrum. Should yield the
-        # same results as the
+        # Spectrum_jonswap_k_domain_2 is the explicit verison of the transormed jonswap
+        # spectrum. Should yield the same results as the
         result2 = spectrum_jonswap_k_domain_2(
             k_waves=wave_numbers, Hs=hs_in, Tp=11, gamma=3.5, spectral_version="dnv"
         )
@@ -501,24 +498,25 @@ def test_jonswap2D_complex_amplitudes():
             seed=1,
         )
 
-        # Parseval's theorem to calculate the variance from the complex fourier coefficients
-        # divide by 2 as you only use half of the domain
+        # Parseval's theorem to calculate the variance from the complex fourier
+        # coefficients divide by 2 as you only use half of the domain
         hs_estimate = 4 * np.sqrt(np.square(abs(ak)).sum()) / 2
         assert_almost_equal(hs_target, hs_estimate, decimal=1)
 
         if debug_output:
-            print("calculating {} {} {}".format(nx, ny, theta_zero))
+            print(f"calculating {nx} {ny} {theta_zero}")
             # print out hs. You can compare with amplitudes if you want
-            N = int(os.size / 2)
-            amplitudes = N * np.fft.ifft2(ak)
-            hs_et2 = 4 * np.std(amplitudes)
+            # N = int(os.size / 2)
+            # amplitudes = N * np.fft.ifft2(ak)
+            # hs_et2 = 4 * np.std(amplitudes)
             print(
                 "nx={} ny={} theta={}  {:.2f}  {:.2f}".format(
                     nx, ny, theta_zero, hs_target, hs_estimate
                 )
             )
 
-            # for debugging only if you want to view the maxtix to see if it is symmetric
+            # for debugging only if you want to view the maxtrix to see if it is
+            # symmetric
             print()
             for j1 in range(ny):
                 line = ""
@@ -527,7 +525,8 @@ def test_jonswap2D_complex_amplitudes():
                         ak[i1][j1].real, ak[i1][j1].imag
                     )
                 print(line)
-        # this is an explicit loop over the complex amplitudes to check if it is point mirrored
+        # This is an explicit loop over the complex amplitudes to check if it is point
+        # mirrored
         for i1 in range(nx):
             for j1 in range(ny):
                 if i1 == 0:
@@ -542,10 +541,12 @@ def test_jonswap2D_complex_amplitudes():
                 ak_2 = ak[i2][j2].conjugate()
 
                 if i1 == i2 and j1 == j2:
-                    # this is itself, skip as it it the same by definition and not a conjugate
+                    # this is itself, skip as it is the same by definition and not a
+                    # conjugate
                     continue
 
-                # test if coefficient and its point mirrored partner are each others conjugate
+                # test if coefficient and its point mirrored partner are each other's
+                # conjugate
                 assert_almost_equal(ak_1, ak_2)
 
     n_size = 32
@@ -554,7 +555,7 @@ def test_jonswap2D_complex_amplitudes():
         for j_off in [0, 1]:
             nx = n_size + i_off
             ny = 2 * n_size + j_off
-            for theta_0 in np.linspace(0, 2 * pi, 7, endpoint=True):
+            for theta_0 in np.linspace(0, 2 * pi, 7):
                 check_symmetry(nx, ny, theta_zero=theta_0)
 
 
@@ -627,9 +628,7 @@ def test_omega_vs_omega_e():
 def test_spectrum_to_spectrum_encountered():
     n_size = 4
     frequencies = np.linspace(0, 2.5, n_size)
-    spectrum_js = spectrum_jonswap(
-        omega=frequencies, Hs=1, Tp=11, gamma=3.4, spectral_version="dnv"
-    )
+    spectrum_js = spectrum_jonswap(omega=frequencies, Hs=1, Tp=11, gamma=3.4)
 
     result, results2 = spectrum_to_spectrum_encountered(
         spectrum=spectrum_js, frequencies=frequencies, velocity=1
@@ -643,9 +642,7 @@ def test_spectrum2d_to_spectrum2d_encountered():
     n_size = 4
     frequencies = np.linspace(0, 2.5, n_size)
     directions = np.linspace(0, 2 * np.pi, n_size, endpoint=False)
-    spectrum_js = spectrum_jonswap(
-        omega=frequencies, Hs=1, Tp=11, gamma=3.4, spectral_version="dnv"
-    )
+    spectrum_js = spectrum_jonswap(omega=frequencies, Hs=1, Tp=11, gamma=3.4)
     directional_dist = spreading_function(
         theta=directions, theta0=34, n_spreading_factor=2.3
     )
@@ -705,12 +702,8 @@ def test_mask_out_of_range():
 def test_specspecs():
     n_size = 20
     frequencies = np.linspace(0, 2.5, n_size)
-    spectrum_js = spectrum_jonswap(
-        omega=frequencies, Hs=3, Tp=11, gamma=3.5, spectral_version="dnv"
-    )
-    result = specspecs(
-        frequency=frequencies, amplitude=spectrum_js, lowlim=0.01, higlim=0.9
-    )
+    spectrum_js = spectrum_jonswap(omega=frequencies, Hs=3, Tp=11, gamma=3.5)
+    result = specspecs(frequency=frequencies, amplitude=spectrum_js)
 
     result_expected = (
         3,
@@ -729,7 +722,7 @@ def test_specspecs():
 def test_thetaspreadspecs():
     n_size = 20
     directions = np.linspace(0, 2 * np.pi, n_size, endpoint=False)
-    dd_spread = spreading_function2(theta=directions, theta0=100, s_spreading_factor=5)
+    dd_spread = spreading_function2(theta=directions, theta0=100)
     result = thetaspreadspecs(theta=directions, Dspread=dd_spread, areafraction=0.9)
 
     result_p1 = result[:7]
@@ -838,9 +831,13 @@ def test_set_heading():
 
 
 def main():
-    # run all the unit test here. This is only needed if the test_wave_spectra script is executed as
-    # a python script for debuggin purpose only. In case that the setup test suit is run, this is
-    # not needed at all
+    """
+    Run all the unit test here.
+
+    This is only needed if the test_wave_spectra script is executed as a python script
+    for debugging purpose only.
+    In case that the setup test suit is run, this is not needed at all
+    """
     test_omega_peak_jonswap()
     test_alpha_jonswap()
     test_spreading_function2()
